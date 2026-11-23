@@ -1,0 +1,276 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectNav from '../components/ProjectNav.astro';
+import { hcgcc, hcgccModel, ui } from '../content/site';
+
+// Slide 2 of the deck, rendered with pdftoppm and converted to WebP, unedited.
+// Showing the deck's own logos here is an approved exception to rule 4
+// (the rule covers logos/mascots used as decoration). See CONTENT.md.
+const slide = {
+  src: '/images/hcgcc-slide-2-1440.webp',
+  srcset: '/images/hcgcc-slide-2-720.webp 720w, /images/hcgcc-slide-2-1440.webp 1440w',
+  sizes: '(min-width: 800px) 720px, calc(100vw - 32px)',
+  width: 1440,
+  height: 810,
+};
+const b = ui.hcgccBuilder;
+const shades = ['var(--text)', '#B5B3AD', '#86847F'];
+---
+<Base title={`${hcgcc.title} · Yousef Alsharif`} description={hcgcc.theCase} canonicalPath="/hcgcc">
+  <article>
+    <header class="page-head">
+      <div class="container">
+        <a class="back" href="/#projects">{ui.pages.allProjects}</a>
+        <h1 class="page-title">{hcgcc.title}</h1>
+        <p class="meta">{hcgcc.competition}</p>
+        <p class="result">{hcgcc.result}</p>
+        <p class="team dim">{hcgcc.teamCredit}</p>
+
+        <ul class="figures">
+          {
+            hcgcc.headlineNumbers.map((n) => (
+              <li>
+                <span class="figures__value mono">{n.value}</span>
+                <span class="figures__label">{n.label}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="block">
+          <h2 class="subhead">{ui.hcgcc.theCase}</h2>
+          <p>{hcgcc.theCase}</p>
+        </div>
+
+        <div class="block">
+          <h2 class="subhead">{ui.hcgcc.ourAnswer}</h2>
+          <p>{hcgcc.answerIntro}</p>
+          <ul class="bullets plan">
+            {hcgcc.plan.map((part) => <li><strong>{part.name}</strong>: {part.text}</li>)}
+          </ul>
+        </div>
+
+        {hcgcc.myRole && <p class="block">{hcgcc.myRole}</p>}
+
+        {
+          hcgcc.deckHref && (
+            <div class="deck">
+              <a class="deck__preview" href={hcgcc.deckHref}>
+                <img src={slide.src} srcset={slide.srcset} sizes={slide.sizes} width={slide.width}
+                  height={slide.height} alt={ui.hcgcc.slideAlt} loading="lazy" decoding="async" />
+              </a>
+              <ul class="links deck__links">
+                <li><a href={hcgcc.deckHref}>{ui.hcgcc.openDeck}</a></li>
+                <li><a href={hcgcc.deckHref} download>{ui.hcgcc.downloadDeck}</a></li>
+              </ul>
+            </div>
+          )
+        }
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="build-title">
+      <div class="container">
+        <h2 id="build-title" class="section-title">{b.heading}</h2>
+        <p class="intro">{b.intro}</p>
+
+        <div class="builder wide" data-builder data-total={hcgccModel.totalM}>
+          <ul class="builder__parts" role="list">
+            {
+              hcgccModel.parts.map((p, i) => (
+                <li>
+                  <button type="button" class="builder__toggle" aria-pressed={i === 0 ? 'true' : 'false'}
+                    data-part={i} data-amount={p.amountM}>
+                    <span class="builder__state mono" aria-hidden="true">{i === 0 ? b.on : b.off}</span>
+                    <span class="builder__name">{p.name}</span>
+                    <span class="builder__amount mono">~${p.amountM}M</span>
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="builder__out" aria-live="polite">
+            <p><span class="builder__total mono" data-sum>${hcgccModel.parts[0]?.amountM ?? 0}M</span> <span class="dim">{b.totalLabel}</span></p>
+            <div class="builder__bar" aria-hidden="true">
+              {
+                hcgccModel.parts.map((p, i) => (
+                  <span data-seg={i} style={`width:${(p.amountM / hcgccModel.totalM) * 100}%;background:${shades[i]}`}
+                    hidden={i !== 0} />
+                ))
+              }
+            </div>
+            <p class="small dim builder__scale"><span class="mono">$0</span><span class="mono">${hcgccModel.totalM}M</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <ProjectNav current="hcgcc" />
+  </article>
+</Base>
+
+<script>
+  import { ui } from '../content/site';
+
+  const root = document.querySelector<HTMLElement>('[data-builder]');
+  if (root) {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-part]'));
+    const sum = root.querySelector('[data-sum]') as HTMLElement;
+    const update = (): void => {
+      let total = 0;
+      for (const btn of buttons) {
+        const on = btn.getAttribute('aria-pressed') === 'true';
+        if (on) total += Number(btn.dataset.amount);
+        (btn.querySelector('.builder__state') as HTMLElement).textContent = on ? ui.hcgccBuilder.on : ui.hcgccBuilder.off;
+        const seg = root.querySelector<HTMLElement>(`[data-seg="${btn.dataset.part}"]`);
+        if (seg) seg.hidden = !on;
+      }
+      sum.textContent = `$${total}M`;
+    };
+    for (const btn of buttons) {
+      btn.addEventListener('click', () => {
+        btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        update();
+      });
+    }
+    update();
+  }
+</script>
+
+<style>
+  .result {
+    margin-top: var(--space-4);
+    font-size: var(--step-1);
+    font-weight: 600;
+  }
+
+  .team {
+    margin-top: var(--space-2);
+  }
+
+  .block {
+    margin-top: var(--space-6);
+  }
+
+  .plan {
+    margin-top: var(--space-4);
+  }
+
+  .figures {
+    display: grid;
+    gap: var(--space-3);
+    list-style: none;
+    margin-top: var(--space-6);
+  }
+
+  .figures li {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 480px) {
+    .figures li {
+      display: grid;
+      grid-template-columns: 8.5rem 1fr;
+      align-items: baseline;
+      gap: var(--space-4);
+    }
+  }
+
+  .figures__value {
+    font-size: var(--step-1);
+  }
+
+  .figures__label {
+    color: var(--text-dim);
+  }
+
+  .deck {
+    margin-top: var(--space-7);
+  }
+
+  .deck__preview {
+    display: block;
+    border: 1px solid var(--border);
+  }
+
+  .deck__preview img {
+    width: 100%;
+    height: auto;
+  }
+
+  .deck__links {
+    margin-top: var(--space-4);
+  }
+
+  .builder {
+    display: grid;
+    gap: var(--space-7);
+    margin-top: var(--space-7);
+  }
+
+  @media (min-width: 960px) {
+    .builder {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      align-items: start;
+    }
+  }
+
+  .builder__parts {
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .builder__toggle {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-4);
+    width: 100%;
+    min-height: 56px;
+    padding: var(--space-4) 0;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .builder__toggle[aria-pressed='true'] {
+    color: var(--text);
+  }
+
+  .builder__toggle[aria-pressed='true'] .builder__name {
+    font-weight: 600;
+  }
+
+  .builder__toggle:hover .builder__name {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .builder__total {
+    font-size: 2.5rem;
+    line-height: 1.1;
+  }
+
+  .builder__bar {
+    display: flex;
+    height: 28px;
+    margin-top: var(--space-4);
+    border: 1px solid var(--border);
+  }
+
+  .builder__bar > span[hidden] {
+    display: none;
+  }
+
+  .builder__scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-2);
+  }
+</style>

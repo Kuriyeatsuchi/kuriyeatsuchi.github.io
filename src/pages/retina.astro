@@ -1,0 +1,368 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectNav from '../components/ProjectNav.astro';
+import { retina, ui } from '../content/site';
+
+const gate = ui.retinaGate;
+const presets = [
+  { key: 'clean', label: gate.presets.clean, exposure: 0, contrast: 1, blur: 0 },
+  { key: 'under', label: gate.presets.under, exposure: -1.8, contrast: 1, blur: 0 },
+  { key: 'washed', label: gate.presets.washed, exposure: 0.6, contrast: 0.3, blur: 0 },
+  { key: 'blur', label: gate.presets.blur, exposure: 0, contrast: 1, blur: 6 },
+];
+---
+<Base title={`${retina.title} · Yousef Alsharif`} description={retina.oneLine} canonicalPath="/retina">
+  <article>
+    <header class="page-head">
+      <div class="container">
+        <a class="back" href="/#projects">{ui.pages.allProjects}</a>
+        <h1 class="page-title">{retina.title}</h1>
+        <p class="meta">{retina.period}</p>
+        <p class="lede">{retina.oneLine}</p>
+        {retina.whyItMatters && <p class="block">{retina.whyItMatters}</p>}
+        <p class="block dim">{retina.origin}</p>
+
+        <div class="block">
+          <h2 class="subhead">{ui.retina.stage1}</h2>
+          <p class="cap">{retina.stage1}</p>
+        </div>
+        <div class="block">
+          <h2 class="subhead">{ui.retina.stage2}</h2>
+          <p class="cap">{retina.stage2}</p>
+        </div>
+
+        {
+          retina.results && (
+            <div class="block">
+              <h2 class="subhead">{ui.retina.results}</h2>
+              <ul class="figures">
+                <li>
+                  <span class="figures__value mono">AUC {retina.results.anyRetinopathyAuc}</span>
+                  <span class="figures__label">
+                    {ui.retina.anyRetinopathy}
+                    {retina.results.anyRetinopathyCi && `, 95% CI ${retina.results.anyRetinopathyCi}`}
+                  </span>
+                </li>
+                <li>
+                  <span class="figures__value mono">AUC {retina.results.referableAuc}</span>
+                  <span class="figures__label">
+                    {ui.retina.referable}
+                    {retina.results.referableCi && `, 95% CI ${retina.results.referableCi}`}
+                  </span>
+                </li>
+              </ul>
+              <p class="block-sm dim">
+                {ui.retina.crossValidation}
+                {retina.results.cvRange && `; range: ${retina.results.cvRange}`}
+              </p>
+            </div>
+          )
+        }
+
+        {
+          retina.stack.length > 0 && (
+            <div class="block">
+              <h2 class="subhead">{ui.retina.stack}</h2>
+              <ul class="stack-list">
+                {retina.stack.map((tool) => <li>{tool}</li>)}
+              </ul>
+            </div>
+          )
+        }
+
+        <p class="block dim">{retina.disclaimer}</p>
+        {retina.repoUrl && <ul class="links"><li><a href={retina.repoUrl}>{ui.retina.code}</a></li></ul>}
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="gate-title">
+      <div class="container">
+        <h2 id="gate-title" class="section-title">{gate.heading}</h2>
+        <p class="intro">{gate.intro}</p>
+
+        <div class="gate wide" data-gate>
+          <div>
+            <canvas class="gate__eye" width="320" height="320" data-eye role="img" aria-label={gate.imageLabel}></canvas>
+            <p class="small dim gate__fp"><span>{gate.fingerprint} <span class="mono" data-hash>·</span></span> <span data-dup></span></p>
+          </div>
+
+          <div>
+            <div class="row-buttons" role="group" aria-label={gate.presetsLabel}>
+              {
+                presets.map((p) => (
+                  <button
+                    type="button"
+                    class="btn-line"
+                    aria-pressed={p.key === 'clean' ? 'true' : 'false'}
+                    data-preset={p.key}
+                    data-exposure={p.exposure}
+                    data-contrast={p.contrast}
+                    data-blur={p.blur}
+                  >
+                    {p.label}
+                  </button>
+                ))
+              }
+            </div>
+
+            <div class="gate__sliders">
+              <div class="field">
+                <label for="exposure"><span>{gate.exposure}</span> <output class="mono" data-out="exposure">0.0</output></label>
+                <input id="exposure" type="range" min="-2" max="2" step="0.1" value="0" />
+              </div>
+              <div class="field">
+                <label for="contrast"><span>{gate.contrast}</span> <output class="mono" data-out="contrast">1.00</output></label>
+                <input id="contrast" type="range" min="0.2" max="1.6" step="0.05" value="1" />
+              </div>
+              <div class="field">
+                <label for="blur"><span>{gate.blur}</span> <output class="mono" data-out="blur">0</output></label>
+                <input id="blur" type="range" min="0" max="8" step="1" value="0" />
+              </div>
+            </div>
+
+            <table class="gate__table">
+              <caption class="visually-hidden">{gate.tableCaption}</caption>
+              <thead>
+                <tr><th scope="col">{gate.check}</th><th scope="col">{gate.value}</th><th scope="col">{gate.allowed}</th><th scope="col">{gate.result}</th></tr>
+              </thead>
+              <tbody data-rows></tbody>
+            </table>
+
+            <p class="gate__verdict" aria-live="polite" data-verdict></p>
+            <p class="small dim">{gate.note}</p>
+          </div>
+        </div>
+        <noscript><p class="dim">{gate.noscript}</p></noscript>
+      </div>
+    </section>
+
+    <ProjectNav current="retina" />
+  </article>
+</Base>
+
+<script>
+  import { drawFundus } from '../lib/quality/fundus';
+  import { degrade, fingerprint, judge, limitsFrom, measure, type Settings } from '../lib/quality/metrics';
+  import { ui } from '../content/site';
+
+  const G = ui.retinaGate;
+  const root = document.querySelector<HTMLElement>('[data-gate]');
+  if (root) {
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-eye]') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    const fundus = drawFundus(320, 42);
+    const clean = measure(degrade(fundus, { exposure: 0, contrast: 1, blur: 0 }), fundus);
+    const limits = limitsFrom(clean);
+    const cleanHash = fingerprint(degrade(fundus, { exposure: 0, contrast: 1, blur: 0 }));
+    const inputs = {
+      exposure: document.getElementById('exposure') as HTMLInputElement,
+      contrast: document.getElementById('contrast') as HTMLInputElement,
+      blur: document.getElementById('blur') as HTMLInputElement,
+    };
+    const presetButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-preset]'));
+
+    const settings = (): Settings => ({
+      exposure: parseFloat(inputs.exposure.value),
+      contrast: parseFloat(inputs.contrast.value),
+      blur: parseInt(inputs.blur.value, 10),
+    });
+
+    const update = (): void => {
+      const s = settings();
+      const px = degrade(fundus, s);
+      if (ctx) {
+        const img = ctx.createImageData(320, 320);
+        img.data.set(px);
+        ctx.putImageData(img, 0, 0);
+      }
+      const m = measure(px, fundus);
+      const problems = judge(m, limits);
+      const rows: [string, string, string, boolean][] = [
+        [G.brightness, m.brightness.toFixed(0), `${limits.brightness[0].toFixed(0)} to ${limits.brightness[1].toFixed(0)}`,
+          m.brightness >= limits.brightness[0] && m.brightness <= limits.brightness[1]],
+        [G.contrastCheck, m.contrast.toFixed(2), `≥ ${limits.contrast.toFixed(2)}`, m.contrast >= limits.contrast],
+        [G.sharpness, m.sharpness.toFixed(2), `≥ ${limits.sharpness.toFixed(2)}`, m.sharpness >= limits.sharpness],
+      ];
+      const body = root.querySelector('[data-rows]') as HTMLElement;
+      body.replaceChildren(
+        ...rows.map(([name, value, allowed, ok]) => {
+          const tr = document.createElement('tr');
+          for (const [i, text] of [name, value, allowed, ok ? G.pass : G.fail].entries()) {
+            const cell = document.createElement(i === 0 ? 'th' : 'td');
+            if (i === 0) cell.setAttribute('scope', 'row');
+            if (i === 1 || i === 2) cell.className = 'mono';
+            if (i === 3 && !ok) cell.className = 'fail';
+            cell.textContent = text;
+            tr.append(cell);
+          }
+          return tr;
+        }),
+      );
+      const reasons = problems.map((p) => G.reasons[p]).join(', ');
+      (root.querySelector('[data-verdict]') as HTMLElement).textContent = problems.length
+        ? `${G.verdictBad}: ${reasons}`
+        : G.verdictOk;
+      const h = fingerprint(px);
+      (root.querySelector('[data-hash]') as HTMLElement).textContent = h;
+      (root.querySelector('[data-dup]') as HTMLElement).textContent = h === cleanHash ? G.duplicate : G.notDuplicate;
+      (root.querySelector('[data-out="exposure"]') as HTMLElement).textContent = `${s.exposure > 0 ? '+' : ''}${s.exposure.toFixed(1)}`;
+      (root.querySelector('[data-out="contrast"]') as HTMLElement).textContent = s.contrast.toFixed(2);
+      (root.querySelector('[data-out="blur"]') as HTMLElement).textContent = String(s.blur);
+      for (const b of presetButtons) {
+        const on =
+          parseFloat(b.dataset.exposure ?? '') === s.exposure &&
+          parseFloat(b.dataset.contrast ?? '') === s.contrast &&
+          parseInt(b.dataset.blur ?? '', 10) === s.blur;
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+    };
+
+    for (const input of Object.values(inputs)) input.addEventListener('input', update);
+    for (const b of presetButtons) {
+      b.addEventListener('click', () => {
+        inputs.exposure.value = b.dataset.exposure ?? '0';
+        inputs.contrast.value = b.dataset.contrast ?? '1';
+        inputs.blur.value = b.dataset.blur ?? '0';
+        update();
+      });
+    }
+    update();
+  }
+</script>
+
+<style>
+  .block {
+    margin-top: var(--space-6);
+  }
+
+  .block-sm {
+    margin-top: var(--space-3);
+  }
+
+  /* Source text starts lowercase (CONTENT.md); capitalize visually only. */
+  .cap::first-letter {
+    text-transform: uppercase;
+  }
+
+  .stack-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    list-style: none;
+  }
+
+  .figures {
+    display: grid;
+    gap: var(--space-3);
+    list-style: none;
+    margin-top: var(--space-3);
+  }
+
+  .figures li {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 480px) {
+    .figures li {
+      display: grid;
+      grid-template-columns: 8.5rem 1fr;
+      align-items: baseline;
+      gap: var(--space-4);
+    }
+  }
+
+  .figures__value {
+    font-size: var(--step-1);
+  }
+
+  .figures__label {
+    color: var(--text-dim);
+  }
+
+  .gate {
+    display: grid;
+    gap: var(--space-7);
+    margin-top: var(--space-7);
+  }
+
+  @media (min-width: 960px) {
+    .gate {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+    }
+  }
+
+  .gate__eye {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 1;
+    background: #000;
+  }
+
+  .gate__fp {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    max-width: 400px;
+    margin-top: var(--space-3);
+  }
+
+  .gate__sliders {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .gate__sliders {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .gate__sliders .field {
+    margin-top: 0;
+  }
+
+  .gate__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--space-6);
+  }
+
+  .gate__table th,
+  .gate__table td {
+    text-align: left;
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .gate__table thead th {
+    color: var(--text-dim);
+    font-size: var(--step--1);
+  }
+
+  .gate__table tbody th {
+    font-weight: 600;
+  }
+
+  .gate__table .fail {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .gate__verdict {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--step-2);
+    margin-top: var(--space-5);
+  }
+
+  .gate__verdict + p {
+    margin-top: var(--space-3);
+  }
+</style>

@@ -91,10 +91,10 @@ export const mizan: Mizan = {
 
 export interface RetinaResults {
   anyRetinopathyAuc: number;
-  anyRetinopathyCi: string;
+  anyRetinopathyCi: string | null;
   referableAuc: number;
-  referableCi: string;
-  cvRange: string;
+  referableCi: string | null;
+  cvRange: string | null;
 }
 
 export interface Retina {
@@ -107,7 +107,7 @@ export interface Retina {
   stage2: string;
   /** Dataset statement. Hidden until permission to describe it publicly is confirmed. */
   data: string | null;
-  /** Hidden on the whole site until dataset size, patient split and CIs are added. */
+  /** Shown on the site (approved by Yousef 2026-11-23). */
   results: RetinaResults | null;
   limitations: string | null;
   stack: readonly string[];
@@ -127,7 +127,13 @@ export const retina: Retina = {
     'brightness, contrast, resolution and sharpness measured inside the retina; exact duplicate files flagged.',
   stage2: 'pretrained ResNet18 as a feature extractor + logistic regression.',
   data: null, // TODO(content): dataset size, patient split, permission to describe publicly
-  results: null, // TODO(content): results hidden until dataset size, patient split and 95% CIs are added
+  results: {
+    anyRetinopathyAuc: 0.997,
+    anyRetinopathyCi: null, // TODO(content): 95% CI
+    referableAuc: 0.942,
+    referableCi: null, // TODO(content): 95% CI
+    cvRange: null, // TODO(content): repeated cross-validation range
+  },
   limitations: null, // TODO(content): limitations
   // TODO(content): confirm PyTorch before adding it to the stack
   stack: ['Python', 'OpenCV', 'NumPy', 'scikit-learn'],
@@ -298,6 +304,11 @@ export const ui = {
     liveApp: 'Live app',
   },
   retina: {
+    // Labels and the cross-validation sentence from CONTENT.md ("Results (held-out test set)").
+    results: 'Results (held-out test set)',
+    anyRetinopathy: 'Any retinopathy',
+    referable: 'Referable retinopathy',
+    crossValidation: 'Repeated cross-validation: results vary by split',
     stage1: 'Stage 1, quality',
     stage2: 'Stage 2, grading',
     stack: 'Stack',
@@ -337,4 +348,104 @@ export const ui = {
     home: 'Back to home',
   },
   footer: 'Yousef Alsharif',
+
+  /* -------------------------------------------------------------- */
+  /* PROPOSED copy (CONTENT.md "Proposed copy"), NOT approved yet.   */
+  /* Don't merge to main until Yousef approves or edits these.       */
+  /* -------------------------------------------------------------- */
+  heroEye: {
+    hold: 'Hold to find the signal',
+    scatter: 'Scatter again',
+    hint: 'Hold the button or the scene. On a keyboard, focus the button and hold Space.',
+  },
+  pages: {
+    allProjects: 'All projects',
+    nextProject: 'Next project',
+    navLabel: 'Projects',
+  },
+  mizanLab: {
+    heading: 'The false-alarm lab',
+    intro:
+      'Climate data has memory: a warm year makes the next one more likely to be warm. A plain trend line treats every year as independent, so it finds trends in data that has none. Every series below is pure noise. Turn up the memory and count how often each test is fooled.',
+    chartLabel: 'One 45-year series of pure noise, 1981 to 2025, with a straight trend line fitted through it',
+    slider: 'Memory between years',
+    sliderHelp: '0 means each year is independent; 0.9 means each year mostly repeats the last.',
+    run: 'Run 400 noise series',
+    newExample: 'New example',
+    plain: 'Plain trend line',
+    corrected: 'Corrected test',
+    falseAlarms: 'false alarms',
+    of: 'of',
+    notRun: 'Not run yet',
+    trendFound: 'trend found',
+    noTrend: 'no trend',
+    fooled: 'fooled',
+    legendFooled: 'Fooled: called noise a trend',
+    legendCorrect: 'Correct: no trend',
+    note: "A fair test is fooled about 5% of the time. This in-browser version is simpler than Mizan's full pipeline, so expect it to drift higher when the memory is very strong.",
+    noscript: 'Turn on JavaScript to run the lab.',
+  },
+  retinaGate: {
+    heading: 'The quality gate',
+    intro:
+      'A model can only grade what it can see. Before grading, each photo is measured inside the retina for brightness, contrast and sharpness. Ruin the photo below and watch it get turned away. The eye is drawn by code, and the limits are tuned to it.',
+    imageLabel: 'A retina photo drawn by code, changed by the settings beside it',
+    presetsLabel: 'Presets',
+    presets: { clean: 'Clean', under: 'Underexposed', washed: 'Washed out', blur: 'Out of focus' },
+    exposure: 'Exposure',
+    contrast: 'Contrast',
+    blur: 'Blur',
+    tableCaption: 'Quality checks for the photo',
+    check: 'Check',
+    value: 'Value',
+    allowed: 'Allowed',
+    result: 'Result',
+    brightness: 'Brightness',
+    contrastCheck: 'Contrast',
+    sharpness: 'Sharpness',
+    pass: 'Pass',
+    fail: 'Fail',
+    verdictOk: 'Gradeable, moved to /gradeable',
+    verdictBad: 'Ungradeable, moved to /ungradeable',
+    reasons: { 'too dark': 'too dark', 'too bright': 'too bright', 'too flat': 'too flat', 'too blurry': 'too blurry' },
+    fingerprint: 'Fingerprint',
+    duplicate: 'exact duplicate of the original',
+    notDuplicate: 'not a duplicate',
+    note: 'Exact duplicates share a fingerprint, so changing any setting changes it.',
+    noscript: 'Turn on JavaScript to try the quality gate.',
+  },
+  hcgccBuilder: {
+    heading: 'Build the answer',
+    intro: 'Switch each part of the plan on to see how much it adds to the modeled revenue.',
+    on: 'On',
+    off: 'Off',
+    totalLabel: 'of +$120M a year by FY2029 (modeled)',
+  },
+} as const;
+
+/* ------------------------------------------------------------------ */
+/* Project pages (order on the home page and in "Next project")        */
+/* ------------------------------------------------------------------ */
+
+export interface ProjectPage {
+  slug: 'mizan' | 'retina' | 'hcgcc';
+  title: string;
+  meta: string;
+  line: string;
+}
+
+export const projectPages: readonly ProjectPage[] = [
+  { slug: 'mizan', title: mizan.title, meta: ui.mizan.meta, line: mizan.bullets[0] ?? '' },
+  { slug: 'retina', title: retina.title, meta: retina.period, line: retina.oneLine },
+  { slug: 'hcgcc', title: hcgcc.title, meta: `${hcgcc.competition} · ${hcgcc.result}`, line: hcgcc.theCase },
+];
+
+/** Modeled revenue by part (CONTENT.md "Our answer" and "Model"), in $M. */
+export const hcgccModel = {
+  totalM: 120,
+  parts: [
+    { name: 'Progress Intelligence', amountM: 81 },
+    { name: 'Own the Checkout', amountM: 16 },
+    { name: 'Pay-for-Progress', amountM: 23 },
+  ],
 } as const;

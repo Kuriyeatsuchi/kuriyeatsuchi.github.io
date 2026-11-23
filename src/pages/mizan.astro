@@ -1,0 +1,304 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectNav from '../components/ProjectNav.astro';
+import { mizan, ui } from '../content/site';
+
+const lab = ui.mizanLab;
+---
+<Base title={`${mizan.title} · Yousef Alsharif`} description={mizan.bullets[0] ?? mizan.title} canonicalPath="/mizan">
+  <article>
+    <header class="page-head">
+      <div class="container">
+        <a class="back" href="/#projects">{ui.pages.allProjects}</a>
+        <h1 class="page-title">{mizan.title}</h1>
+        <p class="meta">{ui.mizan.meta}</p>
+        <ul class="bullets page-bullets">
+          {mizan.bullets.map((b) => <li>{b}</li>)}
+        </ul>
+        {
+          (mizan.codeUrl || mizan.liveAppUrl) && (
+            <ul class="links">
+              {mizan.liveAppUrl && <li><a href={mizan.liveAppUrl}>{ui.mizan.liveApp}</a></li>}
+              {mizan.codeUrl && <li><a href={mizan.codeUrl}>{ui.mizan.code}</a></li>}
+            </ul>
+          )
+        }
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="lab-title">
+      <div class="container">
+        <h2 id="lab-title" class="section-title">{lab.heading}</h2>
+        <p class="intro">{lab.intro}</p>
+
+        <div class="lab wide" data-lab>
+          <div class="lab__main">
+            <canvas class="lab__chart" data-chart role="img" aria-label={lab.chartLabel}></canvas>
+            <dl class="lab__verdicts">
+              <dt>{lab.plain}</dt><dd data-ex-plain>·</dd>
+              <dt>{lab.corrected}</dt><dd data-ex-corr>·</dd>
+            </dl>
+            <div class="field">
+              <label for="phi"><span>{lab.slider}</span> <output for="phi" class="mono" data-phi-out>0.60</output></label>
+              <input id="phi" type="range" min="0" max="0.9" step="0.05" value="0.6" aria-describedby="phi-help" />
+              <p id="phi-help" class="dim small">{lab.sliderHelp}</p>
+            </div>
+            <div class="row-buttons">
+              <button type="button" class="btn-line" data-run>{lab.run}</button>
+              <button type="button" class="btn-line" data-new>{lab.newExample}</button>
+            </div>
+          </div>
+
+          <div class="lab__side" aria-live="polite">
+            <div class="lab__grids">
+              <div>
+                <p class="lab__name">{lab.plain}</p>
+                <p class="lab__rate mono" data-rate-plain>·</p>
+                <p class="dim small" data-count-plain>{lab.notRun}</p>
+                <canvas class="lab__grid" width="220" height="220" data-grid-plain aria-hidden="true"></canvas>
+              </div>
+              <div>
+                <p class="lab__name">{lab.corrected}</p>
+                <p class="lab__rate mono" data-rate-corr>·</p>
+                <p class="dim small" data-count-corr>{lab.notRun}</p>
+                <canvas class="lab__grid" width="220" height="220" data-grid-corr aria-hidden="true"></canvas>
+              </div>
+            </div>
+            <p class="legend small dim">
+              <span><span class="swatch swatch--on" aria-hidden="true"></span>{lab.legendFooled}</span>
+              <span><span class="swatch" aria-hidden="true"></span>{lab.legendCorrect}</span>
+            </p>
+            <p class="small dim">{lab.note}</p>
+          </div>
+        </div>
+        <noscript><p class="dim">{lab.noscript}</p></noscript>
+      </div>
+    </section>
+
+    <ProjectNav current="mizan" />
+  </article>
+</Base>
+
+<script>
+  import { ar1Series, correctedMannKendall, mulberry32, plainTrend } from '../lib/mizan/stats';
+  import { ui } from '../content/site';
+
+  const L = ui.mizanLab;
+  const root = document.querySelector<HTMLElement>('[data-lab]');
+  if (root) {
+    const q = <T extends Element>(s: string): T => root.querySelector<T>(s) as T;
+    const chart = q<HTMLCanvasElement>('[data-chart]');
+    const phiInput = document.getElementById('phi') as HTMLInputElement;
+    const phiOut = q<HTMLOutputElement>('[data-phi-out]');
+    const runBtn = q<HTMLButtonElement>('[data-run]');
+    const rng = mulberry32(12345);
+    const N = 45;
+    const RUNS = 400;
+    let phi = 0.6;
+    let series: number[] = [];
+    const css = getComputedStyle(document.documentElement);
+    const color = (name: string): string => css.getPropertyValue(name).trim();
+    const fmtP = (p: number): string => (p < 0.001 ? '< 0.001' : p.toFixed(3));
+
+    const drawChart = (): void => {
+      const box = chart.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = box.width;
+      const h = box.height;
+      chart.width = Math.round(w * dpr);
+      chart.height = Math.round(h * dpr);
+      const c = chart.getContext('2d');
+      if (!c || !series.length) return;
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c.clearRect(0, 0, w, h);
+      const m = Math.max(3, Math.ceil(Math.max(...series.map(Math.abs))));
+      const left = 32;
+      const X = (t: number): number => left + (t / (N - 1)) * (w - left - 8);
+      const Y = (v: number): number => 8 + (1 - (v + m) / (2 * m)) * (h - 32);
+      c.strokeStyle = color('--border');
+      c.beginPath();
+      c.moveTo(left, Y(0) + 0.5);
+      c.lineTo(w - 8, Y(0) + 0.5);
+      c.stroke();
+      c.fillStyle = color('--text-dim');
+      c.font = `12px ${color('--font-mono')}`;
+      c.textAlign = 'left';
+      c.fillText('1981', left, h - 6);
+      c.textAlign = 'right';
+      c.fillText('2025', w - 8, h - 6);
+      c.fillText('0', left - 8, Y(0) + 4);
+      c.strokeStyle = color('--text-dim');
+      c.beginPath();
+      series.forEach((v, t) => (t ? c.lineTo(X(t), Y(v)) : c.moveTo(X(t), Y(v))));
+      c.stroke();
+      c.fillStyle = color('--text');
+      series.forEach((v, t) => c.fillRect(X(t) - 2, Y(v) - 2, 4, 4));
+      const fit = plainTrend(series);
+      c.strokeStyle = color('--text');
+      c.lineWidth = 1.5;
+      c.setLineDash(fit.trend ? [] : [5, 4]);
+      c.beginPath();
+      c.moveTo(X(0), Y(fit.intercept));
+      c.lineTo(X(N - 1), Y(fit.intercept + fit.slope * (N - 1)));
+      c.stroke();
+      c.setLineDash([]);
+      c.lineWidth = 1;
+    };
+
+    const verdict = (trend: boolean, p: number): string =>
+      trend ? `${L.trendFound}, p = ${fmtP(p)} · ${L.fooled}` : `${L.noTrend}, p = ${fmtP(p)}`;
+
+    const example = (): void => {
+      series = ar1Series(N, phi, rng);
+      const a = plainTrend(series);
+      const b = correctedMannKendall(series);
+      q<HTMLElement>('[data-ex-plain]').textContent = verdict(a.trend, a.p);
+      q<HTMLElement>('[data-ex-corr]').textContent = verdict(b.trend, b.p);
+      drawChart();
+    };
+
+    const drawGrid = (canvas: HTMLCanvasElement, hits: boolean[]): void => {
+      const c = canvas.getContext('2d');
+      if (!c) return;
+      c.clearRect(0, 0, 220, 220);
+      for (let i = 0; i < RUNS; i++) {
+        const x = (i % 20) * 11;
+        const y = Math.floor(i / 20) * 11;
+        if (i < hits.length) {
+          c.fillStyle = hits[i] ? color('--text') : color('--border');
+          c.fillRect(x, y, 9, 9);
+        } else {
+          c.strokeStyle = color('--border');
+          c.strokeRect(x + 0.5, y + 0.5, 8, 8);
+        }
+      }
+    };
+
+    const show = (plain: boolean[], corr: boolean[]): void => {
+      const n = plain.length;
+      const a = plain.filter(Boolean).length;
+      const b = corr.filter(Boolean).length;
+      q<HTMLElement>('[data-rate-plain]').textContent = n ? `${Math.round((a / n) * 100)}%` : '·';
+      q<HTMLElement>('[data-rate-corr]').textContent = n ? `${Math.round((b / n) * 100)}%` : '·';
+      q<HTMLElement>('[data-count-plain]').textContent = n ? `${a} ${L.of} ${n} ${L.falseAlarms}` : L.notRun;
+      q<HTMLElement>('[data-count-corr]').textContent = n ? `${b} ${L.of} ${n} ${L.falseAlarms}` : L.notRun;
+      drawGrid(q<HTMLCanvasElement>('[data-grid-plain]'), plain);
+      drawGrid(q<HTMLCanvasElement>('[data-grid-corr]'), corr);
+    };
+
+    runBtn.addEventListener('click', () => {
+      const plain: boolean[] = [];
+      const corr: boolean[] = [];
+      for (let i = 0; i < RUNS; i++) {
+        const x = ar1Series(N, phi, rng);
+        plain.push(plainTrend(x).trend);
+        corr.push(correctedMannKendall(x).trend);
+      }
+      show(plain, corr);
+    });
+    q<HTMLButtonElement>('[data-new]').addEventListener('click', example);
+    phiInput.addEventListener('input', () => {
+      phi = parseFloat(phiInput.value);
+      phiOut.textContent = phi.toFixed(2);
+      show([], []);
+      example();
+    });
+    new ResizeObserver(drawChart).observe(chart);
+    show([], []);
+    example();
+  }
+</script>
+
+<style>
+  .lab {
+    display: grid;
+    gap: var(--space-7);
+    margin-top: var(--space-7);
+  }
+
+  @media (min-width: 960px) {
+    .lab {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: start;
+    }
+  }
+
+  .lab__chart {
+    width: 100%;
+    height: 260px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .lab__verdicts {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-4);
+  }
+
+  .lab__verdicts dt {
+    color: var(--text-dim);
+  }
+
+  .field {
+    margin-top: var(--space-6);
+  }
+
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-weight: 600;
+  }
+
+  .lab__grids {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .lab__name {
+    font-weight: 600;
+  }
+
+  .lab__rate {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    margin-top: var(--space-2);
+  }
+
+  .lab__grid {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    aspect-ratio: 1;
+    margin-top: var(--space-4);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-5);
+  }
+
+  .legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .swatch {
+    width: 10px;
+    height: 10px;
+    background: var(--border);
+  }
+
+  .swatch--on {
+    background: var(--text);
+  }
+
+  .lab__side > p + p {
+    margin-top: var(--space-4);
+  }
+</style>
