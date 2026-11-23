@@ -1,9 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectNav from '../components/ProjectNav.astro';
-import { content, langOf } from '../content/i18n';
+import { content, langOf, localize } from '../content/i18n';
 
 const lang = langOf(Astro.url);
+const L = (path: string): string => localize(path, lang);
 const { mizan, ui } = content(lang);
 
 const lab = ui.mizanLab;
