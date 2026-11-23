@@ -53,7 +53,11 @@ const goatcounter = identity.goatcounterCode;
 
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="site-header__name" href="/">{identity.name}</a>
+        <a class="site-header__logo" href="/" aria-label={`${identity.name}, home`}>
+          <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32">
+            <path d="M13.389 5.315A11 11 0 1 0 26.685 18.611A9.5 9.5 0 0 1 13.389 5.315Z" fill="currentColor"></path>
+          </svg>
+        </a>
         <nav aria-label="Main">
           <ul class="site-nav">
             <li><a href="/#projects">{ui.nav.projects}</a></li>
@@ -108,11 +112,19 @@ const goatcounter = identity.goatcounterCode;
     padding-block: var(--space-5);
   }
 
-  .site-header__name {
-    font-family: var(--font-heading);
-    font-weight: 600;
+  /* The moon: same mark as the favicon. */
+  .site-header__logo {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-left: -8px;
     color: var(--text);
-    text-decoration: none;
+    transition: transform 400ms cubic-bezier(0.2, 0.75, 0.2, 1);
+  }
+
+  .site-header__logo:hover {
+    transform: rotate(-18deg);
   }
 
   .site-nav {
