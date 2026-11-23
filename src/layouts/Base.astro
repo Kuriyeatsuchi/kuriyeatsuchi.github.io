@@ -43,7 +43,7 @@ const other = lang === 'ar' ? 'en' : 'ar';
 const abs = (path: string): string | null => (Astro.site ? new URL(path, Astro.site).href : null);
 const canonical = canonicalPath ? abs(L(canonicalPath)) : null;
 // The same page in the other language (pages without a canonical path, like the 404, have none).
-const otherPath = canonicalPath ? localize(canonicalPath, other) : null;
+const otherPath = canonicalPath ? localize(canonicalPath, other) : notFound ? (other === 'ar' ? '/ar/404/' : '/404') : null;
 const alternates = canonicalPath
   ? [
       { hreflang: 'en', href: abs(localize(canonicalPath, 'en')) },
@@ -67,8 +67,12 @@ const goatcounter = identity.goatcounterCode;
     {
       notFound && lang === 'en' && (
         <script is:inline>
-          // A missing Arabic address (/ar/...) gets the Arabic "page not found" instead.
-          if (location.pathname === '/ar' || location.pathname.indexOf('/ar/') === 0) location.replace('/ar/404/');
+          // A missing Arabic address (/ar/... or one with Arabic letters) gets the Arabic "page not found".
+          (function () {
+            var p = location.pathname;
+            try { p = decodeURIComponent(p); } catch (e) {}
+            if (p === '/ar' || p.indexOf('/ar/') === 0 || /[\u0600-\u06FF]/.test(p)) location.replace('/ar/404/');
+          })();
         </script>
       )
     }
