@@ -50,10 +50,16 @@ function toDatetime(date: string): string | undefined {
         </div>
       )
     }
+    <p class="library-link"><a href="/library">{ui.library.seeAll}</a></p>
   </div>
 </section>
 
 <style>
+  .library-link {
+    margin-top: var(--space-6);
+    font-weight: 600;
+  }
+
   .timeline {
     list-style: none;
     margin-top: var(--space-6);
