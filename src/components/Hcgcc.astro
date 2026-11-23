@@ -1,16 +1,22 @@
 ---
-import Rich from './Rich.astro';
 import { hcgcc, ui } from '../content/site';
 
-// The deck opens at page 2 so the cover slide (logos) isn't the first thing shown.
-// Chrome and Firefox honor #page=2; Safari opens at page 1.
-const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
+// Slide 2 of the deck, rendered with pdftoppm and converted to WebP, unedited.
+// Showing the deck's own logos here is an approved exception to rule 4
+// (the rule covers logos/mascots used as decoration). See CONTENT.md.
+const slide = {
+  src: '/images/hcgcc-slide-2-1440.webp',
+  srcset: '/images/hcgcc-slide-2-720.webp 720w, /images/hcgcc-slide-2-1440.webp 1440w',
+  sizes: '(min-width: 800px) 720px, calc(100vw - 32px)',
+  width: 1440,
+  height: 810,
+};
 ---
 <section id="hcgcc" class="section" aria-labelledby="hcgcc-title">
   <div class="container">
-    <p class="kicker"><Rich text={hcgcc.competition} /></p>
+    <p class="kicker">{hcgcc.competition}</p>
     <h2 id="hcgcc-title" class="section-title">{hcgcc.title}</h2>
-    <p class="hcgcc__result"><Rich text={hcgcc.result} /></p>
+    <p class="hcgcc__result">{hcgcc.result}</p>
     <p class="hcgcc__team dim">{hcgcc.teamCredit}</p>
 
     <ul class="numbers">
@@ -18,9 +24,7 @@ const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
         hcgcc.headlineNumbers.map((n) => (
           <li class="number">
             <span class="number__value mono">{n.value}</span>
-            <span class="number__label">
-              <Rich text={n.label} />
-            </span>
+            <span class="number__label">{n.label}</span>
           </li>
         ))
       }
@@ -28,7 +32,7 @@ const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
 
     <div class="hcgcc__block">
       <h3 class="subhead">{ui.hcgcc.theCase}</h3>
-      <p><Rich text={hcgcc.theCase} /></p>
+      <p>{hcgcc.theCase}</p>
     </div>
 
     <div class="hcgcc__block">
@@ -38,7 +42,7 @@ const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
         {
           hcgcc.plan.map((part) => (
             <li>
-              <strong>{part.name}</strong>: <Rich text={part.text} />
+              <strong>{part.name}</strong>: {part.text}
             </li>
           ))
         }
@@ -48,9 +52,20 @@ const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
     {hcgcc.myRole && <p class="hcgcc__block">{hcgcc.myRole}</p>}
 
     {
-      hcgcc.deckHref && deckEmbedSrc && (
+      hcgcc.deckHref && (
         <div class="deck">
-          {/* Links come before the frame so keyboard users reach them before the PDF viewer's own controls. */}
+          <a class="deck__preview" href={hcgcc.deckHref}>
+            <img
+              src={slide.src}
+              srcset={slide.srcset}
+              sizes={slide.sizes}
+              width={slide.width}
+              height={slide.height}
+              alt={ui.hcgcc.slideAlt}
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
           <ul class="links deck__links">
             <li>
               <a href={hcgcc.deckHref}>{ui.hcgcc.openDeck}</a>
@@ -61,41 +76,11 @@ const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
               </a>
             </li>
           </ul>
-          <div
-            class="deck__frame"
-            data-deck-src={deckEmbedSrc}
-            data-deck-title={ui.hcgcc.deckFrameTitle}
-          />
         </div>
       )
     }
   </div>
 </section>
-
-<script>
-  // Embed the PDF only on larger screens with a fine pointer. Mobile browsers
-  // don't render PDF iframes reliably, and this avoids downloading the deck
-  // on phones. The CSS reserves the frame's space under the same query.
-  const QUERY = '(min-width: 768px) and (pointer: fine)';
-  const frame = document.querySelector<HTMLElement>('[data-deck-src]');
-
-  function embed(): void {
-    if (!frame || frame.querySelector('iframe')) return;
-    const src = frame.dataset.deckSrc;
-    if (!src) return;
-    const iframe = document.createElement('iframe');
-    iframe.src = src;
-    iframe.title = frame.dataset.deckTitle ?? '';
-    iframe.loading = 'lazy';
-    frame.append(iframe);
-  }
-
-  const mq = window.matchMedia(QUERY);
-  if (mq.matches) embed();
-  mq.addEventListener('change', (e) => {
-    if (e.matches) embed();
-  });
-</script>
 
 <style>
   .hcgcc__result {
@@ -151,38 +136,22 @@ const deckEmbedSrc = hcgcc.deckHref ? `${hcgcc.deckHref}#page=2` : null;
   }
 
   .deck {
-    margin-top: var(--space-6);
+    margin-top: var(--space-7);
   }
 
-  .deck__frame {
-    display: none;
+  .deck__preview {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
 
-  @media (min-width: 768px) and (pointer: fine) {
-    :global(.js) .deck__frame {
-      display: block;
-      aspect-ratio: 16 / 10;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: var(--surface);
-    }
-  }
-
-  /* Focus inside the PDF viewer has no visible ring of its own. */
-  .deck__frame:focus-within {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-  }
-
-  .deck__frame :global(iframe) {
+  .deck__preview img {
     width: 100%;
-    height: 100%;
-    border: 0;
+    height: auto;
   }
 
   .deck__links {
-    margin-top: 0;
-    margin-bottom: var(--space-4);
+    margin-top: var(--space-4);
   }
 </style>

@@ -314,7 +314,8 @@ export const ui = {
     ourAnswer: 'Our answer',
     openDeck: 'Open the deck (PDF)',
     downloadDeck: 'Download the deck (PDF)',
-    deckFrameTitle: 'Beyond the Streak, Team Fortune slide deck',
+    slideAlt:
+      'Executive summary slide from the Beyond the Streak deck: the situation, four root issues, an external environment (PEST) analysis, the three-move strategy and the bottom line',
   },
   achievements: {
     heading: 'Achievements',
