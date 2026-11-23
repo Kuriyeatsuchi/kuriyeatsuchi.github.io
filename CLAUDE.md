@@ -72,6 +72,14 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 emoji in headings, custom cursors, cursor trails, typewriter effects, preloaders longer than 1s,
 scroll-jacking, skill bars/percentages, auto-playing audio, "Coming soon" sections,
 stock 3D models, parallax on body text.
+Also banned everywhere: purple or any other gradients, gradient text, glow, glossy blobs, emoji,
+a pill/badge or label above the headline, hype words, centered layouts, fake reviews/testimonials,
+4-item feature grids, pill-shaped corners (2–4px radius max), Inter, stat banners,
+tiny all-caps labels, icon boxes, cards, bouncing/bouncy animation.
+
+**One bright moment:** the hero says what I do, there is one main button ("View work",
+the only filled button), and the hero eye is the only bright or animated moment on the page.
+Amber is for links, the main button and focus states only.
 
 ---
 
