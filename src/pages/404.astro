@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import { identity, ui } from '../content/site';
+---
+<Base
+  title={`${ui.notFound.heading} · ${identity.name}`}
+  description={ui.meta.description}
+  noindex
+>
+  <section class="not-found">
+    <div class="container">
+      <p class="mono not-found__code" aria-hidden="true">404</p>
+      <h1 class="not-found__title">{ui.notFound.heading}</h1>
+      <p class="not-found__body dim">{ui.notFound.body}</p>
+      <a class="btn btn-primary not-found__home" href="/">{ui.notFound.home}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    padding-block: clamp(64px, 14vw, 160px);
+  }
+
+  .not-found__code {
+    color: var(--accent);
+    font-size: var(--step-1);
+  }
+
+  .not-found__title {
+    font-size: var(--step-4);
+    margin-top: var(--space-3);
+  }
+
+  .not-found__body {
+    margin-top: var(--space-4);
+  }
+
+  .not-found__home {
+    margin-top: var(--space-6);
+  }
+</style>
