@@ -4,6 +4,7 @@ import Hero from '../components/Hero.astro';
 import Mizan from '../components/Mizan.astro';
 import Retina from '../components/Retina.astro';
 import CompetitiveProgramming from '../components/CompetitiveProgramming.astro';
+import Hcgcc from '../components/Hcgcc.astro';
 import { competitiveProgramming, ui } from '../content/site';
 ---
 <Base title={ui.meta.title} description={ui.meta.description} canonicalPath="/">
@@ -11,4 +12,5 @@ import { competitiveProgramming, ui } from '../content/site';
   <Mizan />
   <Retina />
   {competitiveProgramming.problems.length > 0 && <CompetitiveProgramming />}
+  <Hcgcc />
 </Base>
