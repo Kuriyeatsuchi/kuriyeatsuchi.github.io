@@ -251,7 +251,7 @@ strong {
   margin-top: var(--space-5);
 }
 
-/* Plain bullet list with a small amber marker. */
+/* Plain bullet list with a small neutral marker. */
 .bullets {
   list-style: none;
   display: grid;
@@ -271,7 +271,7 @@ strong {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--text-dim);
 }
 
 /* Inline link row */
