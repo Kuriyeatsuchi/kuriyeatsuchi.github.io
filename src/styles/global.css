@@ -2,8 +2,8 @@
 
 /* ------------------------------------------------------------------ */
 /* Fonts (self-hosted woff2)                                           */
-/* Instrument Sans (600 instance), Inter and JetBrains Mono: all SIL  */
-/* OFL 1.1, Latin subset. Licenses in /fonts.                          */
+/* Instrument Sans (600 instance), IBM Plex Sans (400, 600) and IBM   */
+/* Plex Mono (400): all SIL OFL 1.1, Latin subset. Licenses in /fonts. */
 /* ------------------------------------------------------------------ */
 
 @font-face {
@@ -15,31 +15,32 @@
 }
 
 @font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-SemiBold.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 /* Metric-matched fallbacks so the swap to web fonts doesn't shift layout (CLS).
-   Values measured from the font files (hhea metrics + average advance width). */
+   size-adjust = ratio of average character widths; ascent/descent = hhea metrics
+   divided by size-adjust. Plex values from @capsizecss/metrics. */
 @font-face {
   font-family: 'Instrument Sans Fallback';
   src: local('Arial Bold'), local('Arial-BoldMT'), local('Arial');
@@ -51,20 +52,20 @@
 }
 
 @font-face {
-  font-family: 'Inter Fallback';
+  font-family: 'IBM Plex Sans Fallback';
   src: local('Arial'), local('ArialMT');
-  size-adjust: 106.47%;
-  ascent-override: 90.99%;
-  descent-override: 22.66%;
+  size-adjust: 101.17%;
+  ascent-override: 101.32%;
+  descent-override: 27.18%;
   line-gap-override: 0%;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono Fallback';
+  font-family: 'IBM Plex Mono Fallback';
   src: local('Courier New'), local('CourierNewPSMT');
   size-adjust: 99.98%;
-  ascent-override: 102.02%;
-  descent-override: 30%;
+  ascent-override: 102.52%;
+  descent-override: 27.5%;
   line-gap-override: 0%;
 }
 

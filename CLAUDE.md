@@ -47,7 +47,7 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 - **three.js** via `@react-three/fiber` + `@react-three/drei`; `@react-three/postprocessing` for bloom only
 - **GSAP ScrollTrigger** + **Lenis** for scroll. Scroll must feel native. Never hijack it.
 - **Plain CSS with custom properties.** No Tailwind, no UI kits.
-- **Fonts, self-hosted woff2 (all SIL OFL):** Instrument Sans (headings), Inter (body), JetBrains Mono (standalone metrics)
+- **Fonts, self-hosted woff2 (all SIL OFL):** Instrument Sans (headings), IBM Plex Sans (body), IBM Plex Mono (standalone metrics)
 - **onnxruntime-web**: phase v3 only
 
 ---
@@ -63,8 +63,8 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 --glow:      #5CC8FF   cyan, used ONLY for vessels / graph edges inside the 3D scene
 ```
 
-- JetBrains Mono ONLY for standalone metrics: stat cards, timeline dates and training dates.
-  Digits inside sentences, headings, chips, bullets and the hero line use the normal body/heading font.
+- IBM Plex Mono ONLY for standalone metrics: HCGCC headline numbers, timeline dates and training dates.
+  Digits inside sentences, headings, bullets and the hero lines use the normal body/heading font.
 - Reading width max ~720px. Generous spacing. Left-aligned text.
 - Text contrast passes WCAG AA (4.5:1) everywhere.
 

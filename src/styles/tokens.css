@@ -11,8 +11,8 @@
 
   /* Type */
   --font-heading: 'Instrument Sans', 'Instrument Sans Fallback', system-ui, sans-serif;
-  --font-body: 'Inter', 'Inter Fallback', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', ui-monospace, monospace;
+  --font-body: 'IBM Plex Sans', 'IBM Plex Sans Fallback', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'IBM Plex Mono Fallback', ui-monospace, monospace;
 
   --step--1: 0.875rem;
   --step-0: 1.0625rem;
