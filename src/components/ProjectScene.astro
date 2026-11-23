@@ -76,6 +76,13 @@ const { ui } = content(lang);
     pointer-events: none;
   }
 
+  /* No text selection or copy menu while playing with a shape. */
+  :global(html[data-scene-focus]) {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
   :global(main > *),
   :global(.site-header),
   :global(.site-footer),

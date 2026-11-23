@@ -122,9 +122,13 @@ const { identity, proofChips, ui } = content(lang);
     }
   }
 
-  /* Fixed-size slots, so nothing shifts when the 3D scene loads. */
+  /* Fixed-size slots, so nothing shifts when the 3D scene loads. A long press on the shapes
+     must not start the phone's text selection or its copy menu. */
   .hero__slots {
     position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     height: 340px;
   }
 
