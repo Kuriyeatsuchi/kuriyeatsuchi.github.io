@@ -9,9 +9,11 @@
  *   across the 0.24 to 0.49 °C per decade range in CONTENT.md, order illustrative), a globe
  *   of points, and a 20 x 20 grid of tests where 5% light up (a fair test's false alarms).
  *   Hovering its project row straightens the trend lines.
- * - The eye: a ball of points with iris rings facing the viewer and a few vessels. The iris
- *   is recomputed from the pupil size, so the pupil can widen or narrow. The scene sets where
- *   it looks. The eye's shape never changes: it reacts only with its pupil and its gaze.
+ * - The eye: an even shell of points (the white of the eye) around a hidden solid ball, so only
+ *   the near side shows, never the back through the front. The iris is made of fine radial
+ *   fibres with a crisp pupil edge and a ring at its rim, recomputed from the pupil size, so
+ *   the pupil can widen or narrow a little (about ±30%). A small light reflection sits on the
+ *   iris. The scene sets where it looks; the eye's shape never changes.
  * - Beyond the Streak has three designs: two bars (users +23%, bookings +8%), a stacked
  *   column of the three plan parts ($81M, $16M, $23M), and two lines that drift apart
  *   (+23% vs +8%). Hovering its row raises the bars.
@@ -28,7 +30,10 @@ import {
   LineSegments,
   Material,
   Points,
+  Mesh,
+  MeshBasicMaterial,
   PointsMaterial,
+  SphereGeometry,
 } from 'three';
 
 export interface SceneObject {
@@ -50,7 +55,6 @@ const TEXT = new Color('#E8E6E1');
 const LIGHT = new Color('#B5B3AD');
 const MID = new Color('#9A9890');
 const DIM = new Color('#3D4350');
-const VESSEL = new Color('#5CC8FF');
 
 function rng(seed: number): () => number {
   let a = seed >>> 0;
@@ -229,40 +233,64 @@ export function makeTrend(pointSize: number): SceneObject {
 /* ------------------------------------------------------------------ */
 
 const IRIS = 0.42;
+const PUPIL = 0.14;
+const SCLERA = new Color('#6F7076');
 
 export function makeEye(pointSize: number): EyeObject {
   const r = rng(7);
   const materials: Material[] = [];
+
+  // A hidden ball in the background colour: it hides the far side of the shell.
+  const occluderMaterial = new MeshBasicMaterial({ color: '#0B0D12', transparent: true });
+  materials.push(occluderMaterial);
+  const occluder = new Mesh(new SphereGeometry(0.965, 40, 28), occluderMaterial);
+  occluder.renderOrder = -1;
+
+  // White of the eye: an even Fibonacci shell in one tone, open where the iris sits (+z).
   const b = new Builder();
   const golden = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < 1300; i++) {
-    const y = 1 - ((i + 0.5) / 1300) * 2;
+  for (let i = 0; i < 1500; i++) {
+    const y = 1 - ((i + 0.5) / 1500) * 2;
     const rr = Math.sqrt(1 - y * y);
     const x = Math.cos(i * golden) * rr;
     const z = Math.sin(i * golden) * rr;
-    if (Math.acos(z) < IRIS + 0.05) continue;
-    b.point(x, y, z, z > 0.2 ? MID : DIM);
+    if (Math.acos(z) < IRIS + 0.035) continue;
+    b.point(x, y, z, SCLERA);
   }
-  const vessel = MID.clone().lerp(VESSEL, 0.6);
-  for (let v = 0; v < 6; v++) {
-    const theta0 = (v / 6) * Math.PI * 2 + 0.4;
-    for (let s = 0; s < 34; s++) {
-      const u = s / 33;
-      const alpha = 1.35 - u * 0.8;
-      const theta = theta0 + Math.sin(u * 3 + v) * 0.18;
-      b.point(Math.sin(alpha) * Math.cos(theta), Math.sin(alpha) * Math.sin(theta), Math.cos(alpha), vessel);
-    }
-  }
+
+  // Iris: radial fibres from the pupil edge (t = 0) to the rim (t = 1), a dense pupil edge,
+  // and a ring at the rim (the limbus).
   const irisStart = b.positions.length / 3;
   const irisT: number[] = [];
   const irisA: number[] = [];
-  for (let i = 0; i < 700; i++) {
-    irisT.push(i < 140 ? 0 : i < 260 ? 1 : r() ** 0.8);
-    irisA.push(r() * Math.PI * 2);
-    b.point(0, 0, 1, TEXT);
+  const addIris = (t: number, a: number, c: Color): void => {
+    irisT.push(t);
+    irisA.push(a);
+    b.point(0, 0, 1, c);
+  };
+  const SPOKES = 96;
+  for (let k = 0; k < SPOKES; k++) {
+    const a0 = (k / SPOKES) * Math.PI * 2;
+    const c = r() < 0.5 ? TEXT : LIGHT;
+    for (let j = 0; j < 8; j++) addIris(0.08 + (j / 8) * 0.86 + r() * 0.05, a0 + (r() - 0.5) * 0.03, c);
   }
-  const eye = b.build(pointSize * 1.1, materials);
+  for (let k = 0; k < 110; k++) addIris(0, (k / 110) * Math.PI * 2, TEXT);
+  for (let k = 0; k < 150; k++) addIris(1, (k / 150) * Math.PI * 2, LIGHT);
+
+  const eye = b.build(pointSize * 1.05, materials);
+
+  // A small light reflection on the upper-left of the iris; it turns with the eye.
+  const cl = new Builder();
+  for (let i = 0; i < 26; i++) {
+    const a = r() * Math.PI * 2;
+    const d = Math.sqrt(r()) * 0.045;
+    cl.point(-0.16 + Math.cos(a) * d, 0.18 + Math.sin(a) * d, 1.02, new Color('#FFFFFF'));
+  }
+  const catchlight = cl.build(pointSize * 1.15, materials).group;
+
   const s = shell([eye.group], materials);
+  s.inner.add(occluder);
+  s.inner.add(catchlight);
 
   let pupil = 1;
   let lastPupil = -1;
@@ -273,8 +301,9 @@ export function makeEye(pointSize: number): EyeObject {
   let holdSize = 1;
   let holdFor = 0;
   const placeIris = (): void => {
+    const p = PUPIL * pupil;
     for (let i = 0; i < irisT.length; i++) {
-      const a = 0.13 * pupil + (IRIS - 0.13 * pupil) * (irisT[i] as number);
+      const a = p + (IRIS - p) * (irisT[i] as number);
       const j = (irisStart + i) * 3;
       eye.positions[j] = Math.sin(a) * Math.cos(irisA[i] as number);
       eye.positions[j + 1] = Math.sin(a) * Math.sin(irisA[i] as number);
@@ -297,7 +326,7 @@ export function makeEye(pointSize: number): EyeObject {
     },
     update(dt, _time, hovered) {
       holdFor -= dt;
-      pupil = approach(pupil, holdFor > 0 ? holdSize : hovered ? 1.7 : 1, dt, 6);
+      pupil = approach(pupil, holdFor > 0 ? holdSize : hovered ? 1.2 : 1, dt, 4);
       if (Math.abs(pupil - lastPupil) > 0.002) placeIris();
       yaw = approach(yaw, yawTarget, dt, 6);
       pitch = approach(pitch, pitchTarget, dt, 6);

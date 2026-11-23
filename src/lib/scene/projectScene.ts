@@ -539,7 +539,7 @@ export function mount(canvas: HTMLCanvasElement): void {
       verdict.textContent = G.unreadable;
       rows.replaceChildren();
       warn.hidden = true;
-      eye.pupilFor(0.6, 1.5);
+      eye.pupilFor(0.75, 1.5);
       return;
     }
     const f = result.fundus;
@@ -568,9 +568,9 @@ export function mount(canvas: HTMLCanvasElement): void {
     );
     warn.hidden = result.looksLikeFundus;
     if (problems.length) {
-      eye.pupilFor(0.55, 1.6);
+      eye.pupilFor(0.72, 1.6);
     } else {
-      eye.pupilFor(1.9, 1.4);
+      eye.pupilFor(1.3, 1.4);
     }
     wake();
   };
@@ -583,7 +583,7 @@ export function mount(canvas: HTMLCanvasElement): void {
     lastInput = clock;
     const on = overEye(e.clientX, e.clientY);
     if (e.dataTransfer) e.dataTransfer.dropEffect = on ? 'copy' : 'none';
-    eye.pupilFor(on ? 1.8 : 1.3, 0.25);
+    eye.pupilFor(on ? 1.25 : 1.1, 0.25);
     wake();
   });
   window.addEventListener('drop', (e) => {
@@ -610,7 +610,7 @@ export function mount(canvas: HTMLCanvasElement): void {
     document.body.append(ghost);
     const dx = eyeBody.x - (a.left + a.width / 2);
     const dy = eyeBody.y - (a.top + a.height / 2);
-    eye.pupilFor(1.8, 0.6);
+    eye.pupilFor(1.25, 0.6);
     wake();
     ghost
       .animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${dx}px, ${dy}px) scale(0.2)`, opacity: 0 }], {
