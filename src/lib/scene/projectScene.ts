@@ -632,10 +632,14 @@ export function mount(canvas: HTMLCanvasElement): void {
         eye.look(lx, ly);
         placePanel(x, y, b.radius);
       }
-      if (focus && doneBtn && role[b.key] === 'main') {
-        doneBtn.style.left = `${x}px`;
-        doneBtn.style.top = `${Math.min(h - 64, y + b.radius / 0.82 + 36)}px`;
-      }
+
+    }
+    // Done sits under the middle place itself (not the shape in it), so it stays put while
+    // shapes swap in and out during focus mode.
+    const mainPlace = focus && doneBtn ? mslot('main')?.getBoundingClientRect() : undefined;
+    if (mainPlace && doneBtn && mainPlace.width > 0) {
+      doneBtn.style.left = `${mainPlace.left + mainPlace.width / 2}px`;
+      doneBtn.style.top = `${Math.min(h - 64, mainPlace.bottom + 36)}px`;
     }
     if (returning && !busy) returning = false;
     return anyVisible && (busy || !reduced);
