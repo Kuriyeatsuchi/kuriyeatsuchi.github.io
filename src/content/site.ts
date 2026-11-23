@@ -298,6 +298,14 @@ export const ui = {
     stack: 'Stack',
     code: 'Code on GitHub',
   },
+  // Heading from CLAUDE.md; field labels from CONTENT.md; platform names as plain text.
+  cp: {
+    heading: 'Competitive Programming',
+    codeforces: 'Codeforces',
+    usaco: 'USACO',
+    keyInsight: 'Key insight',
+    complexity: 'Complexity',
+  },
   hcgcc: {
     theCase: 'The case',
     ourAnswer: 'Our answer',

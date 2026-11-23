@@ -1,0 +1,99 @@
+---
+/**
+ * Competitive Programming (v1): problem write-ups, Codeforces profile link,
+ * USACO division. The rating chart and solved-by-tag stats arrive in v3
+ * (build-time Codeforces fetch).
+ *
+ * index.astro renders this section only when at least one write-up exists,
+ * so it never shows up empty.
+ */
+import Rich from './Rich.astro';
+import { competitiveProgramming as cp, ui } from '../content/site';
+
+const profileUrl = cp.codeforcesHandle
+  ? `https://codeforces.com/profile/${encodeURIComponent(cp.codeforcesHandle)}`
+  : null;
+---
+<section id="competitive-programming" class="section" aria-labelledby="cp-title">
+  <div class="container">
+    <h2 id="cp-title" class="section-title">{ui.cp.heading}</h2>
+
+    {
+      (profileUrl || cp.usacoDivision) && (
+        <dl class="cp__meta">
+          {profileUrl && (
+            <div>
+              <dt>{ui.cp.codeforces}</dt>
+              <dd>
+                <a href={profileUrl}>{cp.codeforcesHandle}</a>
+              </dd>
+            </div>
+          )}
+          {cp.usacoDivision && (
+            <div>
+              <dt>{ui.cp.usaco}</dt>
+              <dd>
+                <Rich text={cp.usacoDivision} />
+              </dd>
+            </div>
+          )}
+        </dl>
+      )
+    }
+
+    <div class="cp__problems">
+      {
+        cp.problems.map((problem) => (
+          <article class="problem">
+            <h3 class="problem__name">
+              <a href={problem.url}>{problem.name}</a>
+            </h3>
+            <dl class="problem__body">
+              <dt class="subhead">{ui.cp.keyInsight}</dt>
+              <dd>
+                <Rich text={problem.keyInsight} />
+              </dd>
+              <dt class="subhead">{ui.cp.complexity}</dt>
+              <dd class="mono">{problem.complexity}</dd>
+            </dl>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .cp__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5) var(--space-7);
+    margin-top: var(--space-5);
+  }
+
+  .cp__meta dt {
+    color: var(--text-dim);
+    font-size: var(--step--1);
+  }
+
+  .cp__problems {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  .problem {
+    padding: var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .problem__name {
+    font-size: var(--step-1);
+  }
+
+  .problem__body dt {
+    margin-top: var(--space-4);
+  }
+</style>
