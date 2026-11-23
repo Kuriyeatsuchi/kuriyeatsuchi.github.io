@@ -281,7 +281,7 @@ export const ui = {
   meta: {
     title: 'Yousef Alsharif',
     // PROPOSED (alt text of the link-preview image)
-    ogImageAlt: 'Yousef Alsharif, high school student in computer science and machine learning, beside a 3D eye made of points',
+    ogImageAlt: 'A 3D eye made of points, looking straight ahead, on a dark starry background', // PROPOSED
     description:
       'Yousef Alsharif, student at Abdulrahman Fakieh Model Schools in Jeddah, Saudi Arabia. Projects, competitions and contact.',
   },
