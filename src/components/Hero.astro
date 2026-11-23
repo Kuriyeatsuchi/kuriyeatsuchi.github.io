@@ -22,13 +22,14 @@ import { identity, proofChips, ui } from '../content/site';
 
     {
       proofChips.length > 0 && (
-        <ul class="chips">
-          {proofChips.map((chip) => (
-            <li class="chip">
-              {chip}
-            </li>
+        <p class="hero__proof">
+          {proofChips.map((item, i) => (
+            <>
+              {i > 0 && <span class="hero__sep"> · </span>}
+              <span class="hero__item">{item}</span>
+            </>
           ))}
-        </ul>
+        </p>
       )
     }
 
@@ -36,7 +37,7 @@ import { identity, proofChips, ui } from '../content/site';
       <a class="btn btn-primary" href="#projects">{ui.hero.viewWork}</a>
       {
         identity.cvHref && (
-          <a class="btn btn-secondary" href={identity.cvHref} download>
+          <a class="hero__cv" href={identity.cvHref} download>
             {ui.hero.downloadCv}
           </a>
         )
@@ -74,7 +75,7 @@ import { identity, proofChips, ui } from '../content/site';
   /* On narrow screens, stack "School · Class of 2028" instead of wrapping
      with a dangling separator. Text is unchanged. */
   @media (max-width: 479px) {
-    .hero__sep {
+    .hero__subline .hero__sep {
       display: none;
     }
 
@@ -83,27 +84,24 @@ import { identity, proofChips, ui } from '../content/site';
     }
   }
 
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    list-style: none;
-    margin-top: var(--space-6);
+  .hero__proof {
+    margin-top: var(--space-5);
   }
 
-  .chip {
-    padding: var(--space-1) var(--space-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    background: var(--surface);
-    font-size: var(--step--1);
-    line-height: 2;
+  /* Keep each item whole when the line wraps. */
+  .hero__item {
+    white-space: nowrap;
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
     margin-top: var(--space-7);
+  }
+
+  .hero__cv {
+    font-weight: 600;
   }
 </style>

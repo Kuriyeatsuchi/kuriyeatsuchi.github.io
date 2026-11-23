@@ -48,9 +48,9 @@ const display = (url: string): string => url.replace(/^https?:\/\/(www\.)?/, '')
 
     {
       identity.cvHref && (
-        <a class="btn btn-secondary contact__cv" href={identity.cvHref} download>
-          {ui.contact.downloadCv}
-        </a>
+        <p class="contact__cv">
+          <a href={identity.cvHref} download>{ui.contact.downloadCv}</a>
+        </p>
       )
     }
   </div>
@@ -104,6 +104,7 @@ const display = (url: string): string => url.replace(/^https?:\/\/(www\.)?/, '')
   }
 
   .contact__cv {
-    margin-top: var(--space-7);
+    margin-top: var(--space-6);
+    font-weight: 600;
   }
 </style>

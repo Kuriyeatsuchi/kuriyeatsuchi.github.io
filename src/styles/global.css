@@ -167,7 +167,7 @@ strong {
 /* ------------------------------------------------------------------ */
 
 /* Standalone metrics only: HCGCC stat values, timeline dates, training dates.
-   Digits inside sentences, headings, chips and bullets use the normal fonts. */
+   Digits inside sentences, headings, bullets and the hero lines use the normal fonts. */
 .mono {
   font-family: var(--font-mono);
   font-size: 0.94em;
@@ -295,7 +295,7 @@ strong {
   justify-content: center;
   min-height: 44px;
   padding: 0 var(--space-5);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   font-weight: 600;
   font-size: var(--step-0);
   text-decoration: none;
@@ -311,16 +311,6 @@ strong {
 .btn-primary:hover {
   background: var(--text);
   border-color: var(--text);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  border-color: var(--text-dim);
 }
 
 /* ------------------------------------------------------------------ */
