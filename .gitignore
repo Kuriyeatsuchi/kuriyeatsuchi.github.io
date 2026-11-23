@@ -15,3 +15,8 @@ dist/
 
 # Private source of facts (contains notes not meant for the public repo)
 CONTENT.md
+
+# General Sans (ITF Free Font License): self-hosting on the site is allowed,
+# but redistributing the file through a public repository is not. Kept local;
+# see Step 14 for how the deploy gets it.
+public/fonts/GeneralSans-*.woff2

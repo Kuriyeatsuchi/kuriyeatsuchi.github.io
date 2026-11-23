@@ -1,0 +1,43 @@
+/* Design tokens. Palette is fixed by CLAUDE.md; do not add accent colors. */
+:root {
+  /* Palette */
+  --bg: #0b0d12; /* near-black navy */
+  --surface: #12151c; /* cards / raised areas */
+  --text: #e8e6e1; /* off-white: 15.6:1 on --bg */
+  --text-dim: #9a9890; /* secondary: 6.7:1 on --bg, 6.3:1 on --surface */
+  --accent: #f08a4b; /* fundus amber, the only accent: 7.8:1 on --bg */
+  --glow: #5cc8ff; /* reserved for the 3D scene (v2); not used in HTML */
+  --border: #252a35; /* neutral hairline, non-text */
+
+  /* Type */
+  --font-heading: 'General Sans', 'General Sans Fallback', system-ui, sans-serif;
+  --font-body: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', ui-monospace, monospace;
+
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: 1.5rem;
+  --step-3: clamp(1.875rem, 4.5vw, 2.5rem);
+  --step-4: clamp(2.75rem, 9vw, 4.25rem);
+
+  /* Layout */
+  --measure: 720px;
+  --gutter: clamp(16px, 5vw, 32px);
+  --section-space: clamp(64px, 10vw, 112px);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius: 10px;
+  --radius-pill: 999px;
+
+  color-scheme: dark;
+}
