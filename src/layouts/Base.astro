@@ -135,6 +135,7 @@ const goatcounter = identity.goatcounterCode;
                 <svg aria-hidden="true" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 3.5 5 6.5 8 3.5"></path></svg>
               </a>
               <div class="projects-menu" id="projects-menu" data-menu-panel>
+                <div class="projects-menu__box">
                 <ul class="projects-menu__grid">
                   {
                     menu.map((p) => (
@@ -153,6 +154,7 @@ const goatcounter = identity.goatcounterCode;
                   }
                 </ul>
                 <a class="projects-menu__all" href={L('/#projects')}>{ui.pages.allProjects}</a>
+                </div>
               </div>
             </li>
             <li><a href={L('/#achievements')}>{ui.nav.achievements}</a></li>
@@ -226,7 +228,12 @@ const goatcounter = identity.goatcounterCode;
   const trigger = item?.querySelector<HTMLAnchorElement>('[data-menu-trigger]');
   if (item && trigger) {
     let timer = 0;
+    const header = document.querySelector<HTMLElement>('.site-header');
     const set = (open: boolean): void => {
+      if (open && header) {
+        const bottom = Math.max(8, header.getBoundingClientRect().bottom);
+        document.documentElement.style.setProperty('--menu-top', `${Math.round(bottom)}px`);
+      }
       item.toggleAttribute('data-open', open);
       trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
@@ -310,10 +317,18 @@ const goatcounter = identity.goatcounterCode;
 
   .site-nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-5);
+    gap: 0 var(--space-5);
     list-style: none;
     font-size: var(--step--1);
+  }
+
+  /* Phones: the menu wraps onto two lines instead of pushing the page wider than the screen. */
+  @media (max-width: 560px) {
+    .site-nav {
+      gap: 0 var(--space-4);
+    }
   }
 
   .site-nav a {
@@ -391,7 +406,7 @@ const goatcounter = identity.goatcounterCode;
   @media (max-width: 760px) {
     .projects-menu {
       position: fixed;
-      top: 64px;
+      top: var(--menu-top, 64px);
       left: var(--gutter);
       right: var(--gutter);
       width: auto;
@@ -412,16 +427,28 @@ const goatcounter = identity.goatcounterCode;
     }
   }
 
-  .projects-menu__grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-5);
-    list-style: none;
+  .projects-menu__box {
     padding: var(--space-5);
     background: var(--bg);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius);
     box-shadow: 0 24px 60px var(--shadow);
+  }
+
+  /* Phones: the menu can be taller than the screen, so it scrolls inside itself. */
+  @media (max-width: 760px) {
+    .projects-menu__box {
+      max-height: calc(100dvh - var(--menu-top, 64px) - 16px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+  }
+
+  .projects-menu__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    list-style: none;
   }
 
   @media (max-width: 760px) {
@@ -478,8 +505,7 @@ const goatcounter = identity.goatcounterCode;
 
   .site-nav .projects-menu__all {
     display: inline-block;
-    margin: var(--space-3) 0 0;
-    margin-inline-start: var(--space-2);
+    margin-top: var(--space-5);
     font-size: var(--step--1);
   }
 

@@ -234,18 +234,23 @@ export function mount(canvas: HTMLCanvasElement): void {
     return true;
   };
 
+  // Phones (narrow screens): objects can't be dragged by touch. The eye fills most of the
+  // screen width there, so grabbing it would block scrolling and drag it over the buttons.
+  const touchDrag = (): boolean => w >= 768;
   window.addEventListener(
     'pointerdown',
     (e) => {
       if (e.button !== 0) return;
+      if (e.pointerType !== 'mouse' && !touchDrag()) return;
       if (startDrag(e.clientX, e.clientY, e.pointerId, e.target)) e.preventDefault();
     },
     { capture: true },
   );
-  // Touch: stop the page from scrolling when a finger lands on an object.
+  // Touch on tablets: stop the page from scrolling when a finger lands on an object.
   window.addEventListener(
     'touchstart',
     (e) => {
+      if (!touchDrag()) return;
       const t = e.touches[0];
       if (!t || e.touches.length > 1) return;
       if (e.target instanceof Element && e.target.closest(INTERACTIVE)) return;
@@ -337,7 +342,8 @@ export function mount(canvas: HTMLCanvasElement): void {
 
     // Enter / leave "follow" mode once the project list has scrolled past.
     const pr = projects?.getBoundingClientRect();
-    const nowFree = !!pr && pr.bottom < h * 0.35;
+    // Phones skip follow mode: the eye stays in the hero and scrolls away with it.
+    const nowFree = !narrow && !!pr && pr.bottom < h * 0.35;
     if (nowFree !== freeMode) {
       freeMode = nowFree;
       if (freeMode) {

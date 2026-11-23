@@ -90,6 +90,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Nothing may make the page wider than the screen (a phone would zoom the whole page out). */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background: var(--bg);
