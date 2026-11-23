@@ -31,6 +31,8 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 8. **Don't touch** `public/CNAME` or `.github/workflows/` without asking.
 9. **No secrets in the repo.** Check `.gitignore` before the first push.
 10. Work on the `redesign` branch. Only `main` deploys. Never push to `main` unless I say so.
+11. **No co-author lines.** Commit messages never include `Co-Authored-By` or `Claude-Session` lines
+    (Yousef, 2026-11-24). Commits are his alone.
 
 ---
 
