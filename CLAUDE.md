@@ -125,6 +125,7 @@ inside the canvas.** Objects are points and lines built in code (no models).
 4. **Drag:** visitors can move any object anywhere (grab the middle) or spin it (grab the edge).
    Dragging never starts on a link or button. Scrolling sends every object back home.
 5. **Over text** an object fades so the text reads as if the object were behind it.
+   **Objects never overlap**; the eye never gets pushed, the others move out of its way.
 6. **After the project list** the objects follow the visitor: each glides to a random spot
    with no text under it. There Mizan and Beyond the Streak glitch into another design every
    10–15 s (Mizan: trend lines / globe / 5%-false-alarm grid; Streak: bars / stacked $81M-$16M-$23M

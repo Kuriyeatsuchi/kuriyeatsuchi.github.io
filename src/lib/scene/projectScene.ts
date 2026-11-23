@@ -14,6 +14,8 @@
  *   it. Links and buttons under an object still work (dragging never starts on them).
  *   Scrolling sends every object back to its home position and rotation.
  * - Over text, an object fades so the text reads as if the object were behind it.
+ * - Objects never overlap: overlapping pairs are pushed apart along the line between them.
+ *   The eye is never pushed; whatever overlaps it moves out of the way.
  * - Idle: after a few seconds without input, objects drift and turn very slowly.
  * - The eye always follows the cursor (hovering its project row widens the pupil). Its shape
  *   never changes; it reacts with its pupil.
@@ -66,6 +68,11 @@ interface Body {
   glitchTo: number;
   nextSwitch: number;
   phase: number;
+  /** Position before separation (last frame), and the separation offset itself. */
+  baseX: number;
+  baseY: number;
+  sepX: number;
+  sepY: number;
 }
 
 /** True for an element that directly holds visible text (or is a control or image). */
@@ -133,6 +140,10 @@ export function mount(canvas: HTMLCanvasElement): void {
       glitchTo: 0,
       nextSwitch: 0,
       phase: i * 2.1 + 0.7,
+      baseX: 0,
+      baseY: 0,
+      sepX: 0,
+      sepY: 0,
     };
   });
   const projects = document.getElementById('projects');
@@ -313,6 +324,34 @@ export function mount(canvas: HTMLCanvasElement): void {
       }
     }
 
+    // Keep objects apart (from last frame's positions). The eye never moves for this, and an
+    // object being dragged is only pushed when it is dragged onto the eye.
+    const push = new Map<Body, { x: number; y: number }>(bodies.map((b) => [b, { x: 0, y: 0 }]));
+    for (let i = 0; i < bodies.length; i++) {
+      for (let j = i + 1; j < bodies.length; j++) {
+        const a = bodies[i] as Body;
+        const c = bodies[j] as Body;
+        if (!a.visible || !c.visible) continue;
+        let dx = c.baseX - a.baseX;
+        let dy = c.baseY - a.baseY;
+        let d = Math.hypot(dx, dy);
+        if (d < 0.01) [dx, dy, d] = [1, 0, 1];
+        const need = a.radius + c.radius + 16 - d;
+        if (need <= 0) continue;
+        const weight = (o: Body, other: Body): number =>
+          o.key === 'retina' ? 0 : drag?.body === o && other.key !== 'retina' ? 0 : 1;
+        const wa = weight(a, c);
+        const wc = weight(c, a);
+        if (wa + wc === 0) continue;
+        const pa = push.get(a) as { x: number; y: number };
+        const pc = push.get(c) as { x: number; y: number };
+        pa.x -= (dx / d) * need * (wa / (wa + wc));
+        pa.y -= (dy / d) * need * (wa / (wa + wc));
+        pc.x += (dx / d) * need * (wc / (wa + wc));
+        pc.y += (dy / d) * need * (wc / (wa + wc));
+      }
+    }
+
     const idle = !reduced && clock - lastInput > 2.5 ? 1 : 0;
     wander = approach(wander, idle, dt, idle ? 0.35 : 1.5);
     let anyVisible = false;
@@ -332,7 +371,7 @@ export function mount(canvas: HTMLCanvasElement): void {
       let sy = h / 2;
       let ss = 0;
       if (heroOk || rowOk) {
-        const t = rowOk && heroOk ? smooth((h - (rr as DOMRect).top) / (h * 0.55)) : rowOk ? 1 : 0;
+        const t = rowOk && heroOk ? smooth((h - (rr as DOMRect).top) / (h * 0.4)) : rowOk ? 1 : 0;
         const a = (heroOk ? hr : rr) as DOMRect;
         const c = (rowOk ? rr : hr) as DOMRect;
         sx = a.left + a.width / 2 + (c.left + c.width / 2 - (a.left + a.width / 2)) * t;
@@ -366,6 +405,14 @@ export function mount(canvas: HTMLCanvasElement): void {
       x += b.off.x + drift * (Math.sin(time * 0.11 + b.phase) * 26 + Math.sin(time * 0.047 + b.phase * 3) * 14);
       y += b.off.y + drift * Math.cos(time * 0.09 + b.phase * 1.7) * 20;
 
+      b.baseX = x;
+      b.baseY = y;
+      const p = push.get(b) as { x: number; y: number };
+      b.sepX = reduced ? p.x : approach(b.sepX, p.x, dt, 10);
+      b.sepY = reduced ? p.y : approach(b.sepY, p.y, dt, 10);
+      if (Math.abs(b.sepX - p.x) + Math.abs(b.sepY - p.y) > 0.5) busy = true;
+      x += b.sepX;
+      y += b.sepY;
       b.radius = (size / 2) * 0.82;
       b.x = x;
       b.y = y;
