@@ -275,7 +275,7 @@ export const ui = {
   meta: {
     title: 'Yousef Alsharif',
     description:
-      'Yousef Alsharif, Grade 11 student at Abdulrahman Fakieh Model Schools in Jeddah, Saudi Arabia. Projects, competitions and contact.',
+      'Yousef Alsharif, student at Abdulrahman Fakieh Model Schools in Jeddah, Saudi Arabia. Projects, competitions and contact.',
   },
   /** Two lines, rendered one per line. */
   heroSubline: ['Jeddah, Saudi Arabia', 'Abdulrahman Fakieh Model Schools · Class of 2028'],
