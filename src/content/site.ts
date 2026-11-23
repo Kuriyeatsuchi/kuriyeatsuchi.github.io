@@ -310,6 +310,8 @@ export const ui = {
     anyRetinopathy: 'Any retinopathy',
     referable: 'Referable retinopathy',
     crossValidation: 'Repeated cross-validation: results vary by split',
+    // Counts from CONTENT.md (Data); wording PROPOSED.
+    testSet: 'Held-out test set: 279 photos, 106 with retinopathy (84 referable).',
     stage1: 'Stage 1, quality',
     stage2: 'Stage 2, grading',
     stack: 'Stack',
@@ -414,7 +416,7 @@ export const ui = {
     duplicate: 'exact duplicate of the original',
     notDuplicate: 'not a duplicate',
     note: 'Exact duplicates share a fingerprint, so changing any setting changes it.',
-    credit: 'Example photos: APTOS 2019 Blindness Detection dataset (Kaggle).',
+    credit: "Example photos from the project's dataset.",
     noscript: 'Turn on JavaScript to try the quality gate.',
   },
   eyeGate: {

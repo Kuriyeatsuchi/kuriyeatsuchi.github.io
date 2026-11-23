@@ -8,7 +8,7 @@
  *    when the camera cropped the top and bottom of the disc).
  * 3. Re-frame the photo so the retina has radius 150 px in the middle of a 320 x 320 square.
  *    Every photo is then measured at the same scale, whatever camera took it.
- * 4. The limits were calibrated on 1,450 clinician-graded photos from the APTOS 2019 dataset
+ * 4. The limits were calibrated on the project's 1,450 clinician-graded photos
  *    with scripts/calibrate_quality.py, which repeats these exact steps: 98.5% of those photos
  *    pass, while 97% of the same photos blurred by 2 px, and all of them darkened by 1.8 stops,
  *    are rejected.
