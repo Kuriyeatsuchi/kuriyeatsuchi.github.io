@@ -39,7 +39,7 @@ export const identity: Identity = {
   name: 'Yousef Alsharif',
   location: 'Jeddah, Saudi Arabia',
   school: 'Abdulrahman Fakieh Model Schools, Grade 11, Class of 2028',
-  tagline: null, // TODO(content): tagline (hidden on site for now)
+  tagline: 'High school student in computer science and machine learning.',
   githubUrl: 'https://github.com/Kuriyeatsuchi',
   linkedinUrl: 'https://www.linkedin.com/in/ykuri',
   emailReversed: { user: 'keyfirahsla', domain: 'moc.liamg' },
@@ -56,7 +56,8 @@ export const aboutBio: string | null = null; // TODO(content): About text (hidde
 /* ------------------------------------------------------------------ */
 
 export const proofChips: readonly string[] = [
-  'ATHKA 2024 Bronze',
+  "ATHKA '24 Bronze",
+  "NSMO '26 Finalist",
   "Tamayuz Scholar '28",
   // TODO(content): USACO chip (add only once Gold or higher)
 ];
@@ -275,8 +276,8 @@ export const ui = {
     description:
       'Yousef Alsharif, Grade 11 student at Abdulrahman Fakieh Model Schools in Jeddah, Saudi Arabia. Projects, competitions and contact.',
   },
-  heroSubline:
-    'Jeddah, Saudi Arabia · Abdulrahman Fakieh Model Schools, Grade 11, Class of 2028',
+  /** Two lines, rendered one per line. */
+  heroSubline: ['Jeddah, Saudi Arabia', 'Abdulrahman Fakieh Model Schools · Class of 2028'],
   skipLink: 'Skip to content',
   nav: {
     projects: 'Projects',

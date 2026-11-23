@@ -1,19 +1,31 @@
 ---
-import Rich from './Rich.astro';
 import { identity, proofChips, ui } from '../content/site';
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="container">
     <h1 id="hero-title" class="hero__name">{identity.name}</h1>
     {identity.tagline && <p class="hero__tagline">{identity.tagline}</p>}
-    <p class="hero__subline"><Rich text={ui.heroSubline} /></p>
+    <p class="hero__subline">
+      {
+        ui.heroSubline.map((line) => (
+          <span class="hero__line">
+            {line.split(' · ').map((part, i) => (
+              <>
+                {i > 0 && <span class="hero__sep"> · </span>}
+                <span class="hero__part">{part}</span>
+              </>
+            ))}
+          </span>
+        ))
+      }
+    </p>
 
     {
       proofChips.length > 0 && (
         <ul class="chips">
           {proofChips.map((chip) => (
             <li class="chip">
-              <Rich text={chip} />
+              {chip}
             </li>
           ))}
         </ul>
@@ -21,7 +33,7 @@ import { identity, proofChips, ui } from '../content/site';
     }
 
     <div class="hero__actions">
-      <a class="btn btn-primary" href="#mizan">{ui.hero.viewWork}</a>
+      <a class="btn btn-primary" href="#projects">{ui.hero.viewWork}</a>
       {
         identity.cvHref && (
           <a class="btn btn-secondary" href={identity.cvHref} download>
@@ -47,12 +59,28 @@ import { identity, proofChips, ui } from '../content/site';
     font-size: var(--step-2);
     line-height: 1.35;
     margin-top: var(--space-5);
+    text-wrap: balance;
   }
 
   .hero__subline {
     color: var(--text-dim);
     margin-top: var(--space-5);
-    max-width: 36em;
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  /* On narrow screens, stack "School · Class of 2028" instead of wrapping
+     with a dangling separator. Text is unchanged. */
+  @media (max-width: 479px) {
+    .hero__sep {
+      display: none;
+    }
+
+    .hero__part {
+      display: block;
+    }
   }
 
   .chips {
