@@ -1,0 +1,43 @@
+---
+import Rich from './Rich.astro';
+import { mizan, ui } from '../content/site';
+---
+<section id="mizan" class="section" aria-labelledby="mizan-title">
+  <div class="container">
+    <p class="kicker"><Rich text={ui.mizan.kicker} /></p>
+    <h2 id="mizan-title" class="section-title">{mizan.title}</h2>
+
+    <ul class="bullets mizan__bullets">
+      {
+        mizan.bullets.map((bullet) => (
+          <li>
+            <Rich text={bullet} />
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      (mizan.codeUrl || mizan.liveAppUrl) && (
+        <ul class="links">
+          {mizan.codeUrl && (
+            <li>
+              <a href={mizan.codeUrl}>{ui.mizan.code}</a>
+            </li>
+          )}
+          {mizan.liveAppUrl && (
+            <li>
+              <a href={mizan.liveAppUrl}>{ui.mizan.liveApp}</a>
+            </li>
+          )}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .mizan__bullets {
+    margin-top: var(--space-6);
+  }
+</style>
