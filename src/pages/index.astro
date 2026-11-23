@@ -1,9 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import { identity, ui } from '../content/site';
+import Hero from '../components/Hero.astro';
+import { ui } from '../content/site';
 ---
 <Base title={ui.meta.title} description={ui.meta.description} canonicalPath="/">
-  <div class="container">
-    <h1>{identity.name}</h1>
-  </div>
+  <Hero />
 </Base>

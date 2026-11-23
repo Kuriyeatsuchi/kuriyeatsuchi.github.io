@@ -1,0 +1,81 @@
+---
+import Rich from './Rich.astro';
+import { identity, proofChips, ui } from '../content/site';
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container">
+    <h1 id="hero-title" class="hero__name">{identity.name}</h1>
+    {identity.tagline && <p class="hero__tagline">{identity.tagline}</p>}
+    <p class="hero__subline"><Rich text={ui.heroSubline} /></p>
+
+    {
+      proofChips.length > 0 && (
+        <ul class="chips">
+          {proofChips.map((chip) => (
+            <li class="chip">
+              <Rich text={chip} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <div class="hero__actions">
+      <a class="btn btn-primary" href="#mizan">{ui.hero.viewWork}</a>
+      {
+        identity.cvHref && (
+          <a class="btn btn-secondary" href={identity.cvHref} download>
+            {ui.hero.downloadCv}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(48px, 12vw, 144px) clamp(64px, 10vw, 112px);
+  }
+
+  .hero__name {
+    font-size: var(--step-4);
+    letter-spacing: -0.02em;
+  }
+
+  .hero__tagline {
+    font-size: var(--step-2);
+    line-height: 1.35;
+    margin-top: var(--space-5);
+  }
+
+  .hero__subline {
+    color: var(--text-dim);
+    margin-top: var(--space-5);
+    max-width: 36em;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    list-style: none;
+    margin-top: var(--space-6);
+  }
+
+  .chip {
+    padding: var(--space-1) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-size: var(--step--1);
+    line-height: 2;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-7);
+  }
+</style>
