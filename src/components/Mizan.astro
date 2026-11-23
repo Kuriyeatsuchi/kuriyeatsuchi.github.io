@@ -2,8 +2,8 @@
 import { mizan, ui } from '../content/site';
 ---
 <article id="mizan" class="project" aria-labelledby="mizan-title">
-  <p class="kicker">{ui.mizan.kicker}</p>
   <h3 id="mizan-title" class="project-title">{mizan.title}</h3>
+  <p class="meta">{ui.mizan.meta}</p>
 
   <ul class="bullets mizan__bullets">
     {mizan.bullets.map((bullet) => <li>{bullet}</li>)}

@@ -293,7 +293,7 @@ export const ui = {
     heading: 'Projects',
   },
   mizan: {
-    kicker: 'NASA Space Apps 2026 team project · Nov 2026',
+    meta: 'NASA Space Apps 2026 team project · Nov 2026',
     code: 'Code on GitHub',
     liveApp: 'Live app',
   },

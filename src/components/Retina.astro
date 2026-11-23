@@ -6,8 +6,8 @@ import { retina, ui } from '../content/site';
 // TODO(content): link to /retina once the case study page ships (v1.x).
 ---
 <article id="retina" class="project" aria-labelledby="retina-title">
-  <p class="kicker">{retina.period}</p>
   <h3 id="retina-title" class="project-title">{retina.title}</h3>
+  <p class="meta">{retina.period}</p>
   <p class="lede">{retina.oneLine}</p>
   {retina.whyItMatters && <p class="retina__why">{retina.whyItMatters}</p>}
   <p class="retina__origin dim">{retina.origin}</p>
