@@ -139,6 +139,9 @@ inside the canvas.** Objects are points and lines built in code (no models).
    your own. A panel beside the eye shows the verdict. Nothing is uploaded.
 8. Later (not started): fly through the pupil onto the retina, Retina → Graph → Network.
 
+**Starfield:** a faint, slowly twinkling field of dots and a few small four-point sparkles
+behind every page (`src/components/StarField.astro`, 2D canvas). It must stay dim: never the focus.
+
 ## Performance and accessibility budgets
 
 - HTML text renders first; the 3D island loads after first paint.

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import StarField from '../components/StarField.astro';
 import { hcgcc, identity, mizan, projectPages, retina, ui } from '../content/site';
 
 interface Props {
@@ -70,6 +71,7 @@ const goatcounter = identity.goatcounterCode;
     }
   </head>
   <body>
+    <StarField />
     <a class="skip-link" href="#main">{ui.skipLink}</a>
 
     <header class="site-header">

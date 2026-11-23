@@ -1,0 +1,109 @@
+---
+// A faint starfield behind every page. Plain 2D canvas, no libraries.
+---
+<canvas class="starfield" data-starfield aria-hidden="true"></canvas>
+
+<script>
+  /**
+   * How it works, in plain English:
+   * - Stars are scattered at random across the window (about one per 9,000 px²): mostly tiny
+   *   dim dots, about one in eight a soft blue, and a handful of small four-point sparkles.
+   * - Each star has its own speed and starting point, so it slowly brightens and dims on its
+   *   own rhythm. Everything stays dim so text and the 3D objects stay the focus.
+   * - The canvas redraws about 20 times a second (twinkling is slow), stops while the tab is
+   *   hidden, and with reduced motion it is drawn once and stays still.
+   */
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-starfield]');
+  const ctx = canvas?.getContext('2d');
+  if (canvas && ctx) {
+    type Star = { x: number; y: number; size: number; base: number; speed: number; phase: number; blue: boolean; sparkle: boolean };
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let stars: Star[] = [];
+    let w = 0;
+    let h = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const build = (): void => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round((w * h) / 9000);
+      stars = Array.from({ length: count }, (_, i) => {
+        const sparkle = i < Math.max(3, Math.round(count / 30));
+        return {
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: sparkle ? 3 + Math.random() * 2.5 : Math.random() < 0.85 ? 1 : 1.6,
+          base: sparkle ? 0.32 + Math.random() * 0.2 : 0.12 + Math.random() * 0.3,
+          speed: 0.25 + Math.random() * 0.9,
+          phase: Math.random() * Math.PI * 2,
+          blue: sparkle ? Math.random() < 0.6 : Math.random() < 0.12,
+          sparkle,
+        };
+      });
+    };
+
+    const draw = (t: number): void => {
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        const twinkle = reduced ? 0.8 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
+        const a = s.base * twinkle;
+        ctx.fillStyle = s.blue ? `rgba(126,184,224,${a})` : `rgba(232,230,225,${a})`;
+        if (s.sparkle) {
+          // A small four-point star: two thin crossing bars and a brighter centre.
+          const r = s.size * (0.8 + 0.2 * twinkle);
+          ctx.fillRect(s.x - r, s.y - 0.5, r * 2, 1);
+          ctx.fillRect(s.x - 0.5, s.y - r, 1, r * 2);
+          ctx.fillRect(s.x - 1, s.y - 1, 2, 2);
+        } else {
+          ctx.fillRect(s.x, s.y, s.size, s.size);
+        }
+      }
+    };
+
+    build();
+    let last = 0;
+    let raf = 0;
+    const loop = (now: number): void => {
+      raf = requestAnimationFrame(loop);
+      if (now - last < 50) return; // ~20 fps is plenty for slow twinkling
+      last = now;
+      draw(now / 1000);
+    };
+    const start = (): void => {
+      if (reduced) {
+        draw(0);
+        return;
+      }
+      if (!raf && document.visibilityState === 'visible') raf = requestAnimationFrame(loop);
+    };
+    const stop = (): void => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    document.addEventListener('visibilitychange', () => (document.visibilityState === 'visible' ? start() : stop()));
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        build();
+        draw(performance.now() / 1000);
+      }, 150);
+    });
+    draw(0);
+    start();
+  }
+</script>
+
+<style>
+  .starfield {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+</style>
