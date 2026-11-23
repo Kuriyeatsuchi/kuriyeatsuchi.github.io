@@ -21,6 +21,11 @@
  */
 
 import {
+  CanvasTexture,
+  CircleGeometry,
+  RepeatWrapping,
+  SRGBColorSpace,
+  Vector3,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -236,6 +241,59 @@ const IRIS = 0.42;
 const PUPIL = 0.14;
 const SCLERA = new Color('#6F7076');
 
+/** The iris as a texture: x is the angle around the eye, y runs from the centre (top) to the rim. */
+function irisTexture(r: () => number): { texture: CanvasTexture; paint: (pupilFraction: number) => void } {
+  const W = 1024;
+  const H = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+  const fibres = Array.from({ length: 640 }, () => ({
+    x: r() * W,
+    width: 0.8 + r() * 2.4,
+    alpha: 0.12 + r() * 0.32,
+    start: r() * 0.3,
+    end: 0.6 + r() * 0.4,
+    light: r() < 0.62,
+  }));
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.wrapS = RepeatWrapping;
+  texture.anisotropy = 4;
+  const paint = (pupilFraction: number): void => {
+    const top = Math.round(pupilFraction * H);
+    const span = H - top;
+    ctx.fillStyle = '#050608';
+    ctx.fillRect(0, 0, W, H);
+    const base = ctx.createLinearGradient(0, top, 0, H);
+    base.addColorStop(0, '#B4B2AC');
+    base.addColorStop(0.65, '#86857F');
+    base.addColorStop(1, '#5E5E5B');
+    ctx.fillStyle = base;
+    ctx.fillRect(0, top, W, span);
+    ctx.lineCap = 'round';
+    for (const f of fibres) {
+      ctx.strokeStyle = f.light ? `rgba(226,224,218,${f.alpha})` : `rgba(28,29,33,${f.alpha * 0.45})`;
+      ctx.lineWidth = f.width;
+      for (const dx of [0, W, -W]) {
+        ctx.beginPath();
+        ctx.moveTo(f.x + dx, top + f.start * span);
+        ctx.lineTo(f.x + dx, top + f.end * span);
+        ctx.stroke();
+      }
+    }
+    ctx.fillStyle = '#E8E6E1'; // pupil edge
+    ctx.fillRect(0, top, W, 3);
+    ctx.fillStyle = '#3C3D42'; // darker rim
+    ctx.fillRect(0, H - 16, W, 16);
+    ctx.fillStyle = '#B5B3AD';
+    ctx.fillRect(0, H - 18, W, 2);
+    texture.needsUpdate = true;
+  };
+  return { texture, paint };
+}
+
 export function makeEye(pointSize: number): EyeObject {
   const r = rng(7);
   const materials: Material[] = [];
@@ -254,65 +312,42 @@ export function makeEye(pointSize: number): EyeObject {
     const rr = Math.sqrt(1 - y * y);
     const x = Math.cos(i * golden) * rr;
     const z = Math.sin(i * golden) * rr;
-    if (Math.acos(z) < IRIS + 0.035) continue;
+    if (Math.acos(z) < IRIS + 0.03) continue;
     b.point(x, y, z, SCLERA);
   }
+  const sclera = b.build(pointSize * 1.05, materials);
 
-  // Iris: radial fibres from the pupil edge (t = 0) to the rim (t = 1), a dense pupil edge,
-  // and a ring at the rim (the limbus).
-  const irisStart = b.positions.length / 3;
-  const irisT: number[] = [];
-  const irisA: number[] = [];
-  const addIris = (t: number, a: number, c: Color): void => {
-    irisT.push(t);
-    irisA.push(a);
-    b.point(0, 0, 1, c);
-  };
-  const SPOKES = 96;
-  for (let k = 0; k < SPOKES; k++) {
-    const a0 = (k / SPOKES) * Math.PI * 2;
-    const c = r() < 0.5 ? TEXT : LIGHT;
-    for (let j = 0; j < 8; j++) addIris(0.08 + (j / 8) * 0.86 + r() * 0.05, a0 + (r() - 0.5) * 0.03, c);
-  }
-  for (let k = 0; k < 110; k++) addIris(0, (k / 110) * Math.PI * 2, TEXT);
-  for (let k = 0; k < 150; k++) addIris(1, (k / 150) * Math.PI * 2, LIGHT);
+  // Iris: a cap of the sphere (pole turned to face +z) carrying the painted texture.
+  const { texture, paint } = irisTexture(r);
+  const irisMaterial = new MeshBasicMaterial({ map: texture, transparent: true });
+  materials.push(irisMaterial);
+  const iris = new Mesh(new SphereGeometry(1.004, 128, 24, 0, Math.PI * 2, 0, IRIS), irisMaterial);
+  iris.rotation.x = Math.PI / 2;
 
-  const eye = b.build(pointSize * 1.05, materials);
+  // A small light reflection on the upper-left of the iris.
+  const glintMaterial = new MeshBasicMaterial({ color: '#FFFFFF', transparent: true });
+  materials.push(glintMaterial);
+  const glint = new Mesh(new CircleGeometry(0.045, 24), glintMaterial);
+  const at = new Vector3(-0.16, 0.18, 0.97).normalize().multiplyScalar(1.012);
+  glint.position.copy(at);
+  glint.lookAt(at.clone().multiplyScalar(2));
 
-  // A small light reflection on the upper-left of the iris; it turns with the eye.
-  const cl = new Builder();
-  for (let i = 0; i < 26; i++) {
-    const a = r() * Math.PI * 2;
-    const d = Math.sqrt(r()) * 0.045;
-    cl.point(-0.16 + Math.cos(a) * d, 0.18 + Math.sin(a) * d, 1.02, new Color('#FFFFFF'));
-  }
-  const catchlight = cl.build(pointSize * 1.15, materials).group;
-
-  const s = shell([eye.group], materials);
-  s.inner.add(occluder);
-  s.inner.add(catchlight);
+  const s = shell([sclera.group], materials);
+  s.inner.add(occluder, iris, glint);
 
   let pupil = 1;
-  let lastPupil = -1;
+  let painted = -1;
   let yaw = 0;
   let pitch = 0;
   let yawTarget = 0;
   let pitchTarget = 0;
   let holdSize = 1;
   let holdFor = 0;
-  const placeIris = (): void => {
-    const p = PUPIL * pupil;
-    for (let i = 0; i < irisT.length; i++) {
-      const a = p + (IRIS - p) * (irisT[i] as number);
-      const j = (irisStart + i) * 3;
-      eye.positions[j] = Math.sin(a) * Math.cos(irisA[i] as number);
-      eye.positions[j + 1] = Math.sin(a) * Math.sin(irisA[i] as number);
-      eye.positions[j + 2] = Math.cos(a);
-    }
-    eye.attr.needsUpdate = true;
-    lastPupil = pupil;
+  const repaint = (): void => {
+    paint((PUPIL * pupil) / IRIS);
+    painted = pupil;
   };
-  placeIris();
+  repaint();
 
   return {
     ...s,
@@ -327,7 +362,7 @@ export function makeEye(pointSize: number): EyeObject {
     update(dt, _time, hovered) {
       holdFor -= dt;
       pupil = approach(pupil, holdFor > 0 ? holdSize : hovered ? 1.2 : 1, dt, 4);
-      if (Math.abs(pupil - lastPupil) > 0.002) placeIris();
+      if (Math.abs(pupil - painted) > 0.004) repaint();
       yaw = approach(yaw, yawTarget, dt, 6);
       pitch = approach(pitch, pitchTarget, dt, 6);
       s.inner.rotation.set(pitch, yaw, 0);
