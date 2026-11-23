@@ -353,11 +353,6 @@ export const ui = {
   /* PROPOSED copy (CONTENT.md "Proposed copy"), NOT approved yet.   */
   /* Don't merge to main until Yousef approves or edits these.       */
   /* -------------------------------------------------------------- */
-  heroEye: {
-    hold: 'Hold to find the signal',
-    scatter: 'Scatter again',
-    hint: 'Hold the button or the scene. On a keyboard, focus the button and hold Space.',
-  },
   pages: {
     allProjects: 'All projects',
     nextProject: 'Next project',

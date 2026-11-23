@@ -43,8 +43,7 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 ## Stack
 
 - **Astro** (static output) + **TypeScript strict**
-- **React islands** only for the 3D canvas and the interactive demo (`client:idle` / `client:visible`)
-- **three.js** via `@react-three/fiber` + `@react-three/drei`; `@react-three/postprocessing` for bloom only
+- **three.js**, plain (no React/R3F), loaded on idle by `src/components/ProjectScene.astro`
 - **GSAP ScrollTrigger** + **Lenis** for scroll. Scroll must feel native. Never hijack it.
 - **Plain CSS with custom properties.** No Tailwind, no UI kits.
 - **Fonts, self-hosted woff2 (all SIL OFL):** Instrument Sans (headings), IBM Plex Sans (body), IBM Plex Mono (standalone metrics)
@@ -77,8 +76,8 @@ a pill/badge or label above the headline, hype words, centered layouts, fake rev
 4-item feature grids, pill-shaped corners (2–4px radius max), Inter, stat banners,
 tiny all-caps labels, icon boxes, cards, bouncing/bouncy animation.
 
-**One bright moment:** the hero says what I do, there is one main button ("View work",
-the only filled button), and the hero eye is the only bright or animated moment on the page.
+**Main button:** the hero says what I do, and "View work" is the only filled button.
+The three project objects in the hero may move (the one-bright-moment rule was dropped 2026-11-23).
 Amber is for links, the main button and focus states only.
 
 ---
@@ -87,7 +86,7 @@ Amber is for links, the main button and focus states only.
 
 `/` (home):
 1. **Hero**: name, tagline, 3 proof chips, buttons "View work" and "Download CV",
-   and the noise-to-eye 3D scene (see 3D concept)
+   and the three project objects (see 3D concept)
 2. **Projects**: a short list; each row links to that project's page
 3. **Competitive Programming**: Codeforces rating chart, solved-by-tag, USACO badge, problem write-ups
 4. **Achievements**: short timeline, only the items listed in CONTENT.md
@@ -108,26 +107,27 @@ Charts are SVG or canvas built from numbers in CONTENT.md only.
 
 ---
 
-## 3D concept (phase v2): "Noise → Eye"
+## 3D concept (phase v2): "Three objects find their projects"
 
-**All text stays real HTML on top of the canvas. Never render text inside the canvas.**
+One WebGL canvas fixed behind the home page. **All text stays real HTML; never render text
+inside the canvas.** Objects are points and lines built in code (no models).
 
-1. **Hero:** a field of points drifts as noise. Pressing and holding (the hold button,
-   the scene, or Space on the focused button) pulls the points into the eye; the morph is a
-   custom GLSL shader interpolating each point between its noise and eye position.
-2. Once formed, the eye follows the cursor; the pupil dilates on "View work" hover.
-3. Later (not started): scroll flies through the pupil onto the retina, then
-   Retina → Graph → Network as originally planned.
+1. **Hero:** the three project objects sit in empty slots beside the name and turn slowly:
+   Mizan's rising trend lines, the eye, and the Beyond the Streak bars (+23% vs +8%).
+   The eye turns toward the cursor.
+2. **Scroll:** each project row has an empty slot. As a row comes up the window, its object
+   slides from the hero into that slot. Native scroll only; the page is never moved by script.
+3. **Hover/focus a row:** Mizan's lines straighten, the pupil widens, the bars rise.
+4. Later (not started): fly through the pupil onto the retina, Retina → Graph → Network.
 
 ## Performance and accessibility budgets
 
 - HTML text renders first; the 3D island loads after first paint.
 - LCP < 2.5s, CLS < 0.05 on Lighthouse mobile. Accessibility ≥ 95, SEO = 100.
 - 3D JS ≤ 300 KB gzipped.
-- `dpr={[1, 1.5]}`. Pause the render loop when the canvas is offscreen or the tab is hidden.
-- drei `PerformanceMonitor` lowers quality on weak devices.
-- **Mobile (<768px or coarse pointer):** eye only, no fly-through; vessels may be 2D canvas.
-- **`prefers-reduced-motion`:** static images instead of animation.
+- Pixel ratio capped at 1.5. Pause the render loop when no object is on screen or the tab is hidden.
+- **Mobile (<768px):** the eye only; below 960px the objects stay in the hero.
+- **`prefers-reduced-motion`:** nothing turns on its own; objects only follow scrolling.
 - Any model compressed (meshopt/Draco); textures KTX2 or WebP.
 - Full keyboard navigation and visible focus states. Meaningful `alt` text.
 
@@ -148,7 +148,7 @@ Never fetch Codeforces from the visitor's browser.
 ## Phases (don't start the next one until I say so)
 
 - **v1:** complete 2D site with all real content, deployed and live. No 3D.
-- **v2 (started 2026-11-23):** hero noise-to-eye scene and the per-project pages with demos.
+- **v2 (started 2026-11-23):** the scroll-linked project objects and the per-project pages with demos.
 - **v3:** let visitors run the stage-1 quality gate on their own image (processed locally,
   nothing uploaded anywhere) + live Codeforces stats.
 

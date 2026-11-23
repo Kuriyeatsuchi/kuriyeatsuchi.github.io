@@ -1,0 +1,31 @@
+---
+// The fixed WebGL canvas behind the home page (src/lib/scene/projectScene.ts).
+// three.js loads only when the browser is idle, after the text has rendered.
+---
+<canvas class="project-scene" data-project-scene aria-hidden="true"></canvas>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-project-scene]');
+  const start = (): void => {
+    if (canvas) void import('../lib/scene/projectScene').then((m) => m.mount(canvas));
+  };
+  if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 2000 });
+  else setTimeout(start, 200);
+</script>
+
+<style>
+  .project-scene {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+
+  .project-scene:global(.is-ready) {
+    opacity: 1;
+  }
+</style>

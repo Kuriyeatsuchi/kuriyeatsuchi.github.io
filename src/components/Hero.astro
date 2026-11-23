@@ -1,5 +1,4 @@
 ---
-import HeroEye from './HeroEye.tsx';
 import { identity, proofChips, ui } from '../content/site';
 ---
 <section class="hero" aria-labelledby="hero-title">
@@ -48,8 +47,11 @@ import { identity, proofChips, ui } from '../content/site';
         </div>
       </div>
 
-      <div class="hero__scene">
-        <HeroEye client:idle labels={ui.heroEye} />
+      <!-- Empty slots; the three project objects are drawn over them by ProjectScene. -->
+      <div class="hero__slots" aria-hidden="true">
+        <span class="slot slot--mizan" data-slot="hero-mizan"></span>
+        <span class="slot slot--retina" data-slot="hero-retina"></span>
+        <span class="slot slot--hcgcc" data-slot="hero-hcgcc"></span>
       </div>
     </div>
   </div>
@@ -73,14 +75,55 @@ import { identity, proofChips, ui } from '../content/site';
     }
   }
 
-  /* Reserves the scene's space before the 3D island loads (no layout shift). */
-  .hero__scene {
-    height: 380px;
+  /* Fixed-size slots, so nothing shifts when the 3D scene loads. */
+  .hero__slots {
+    position: relative;
+    height: 340px;
   }
 
   @media (min-width: 960px) {
-    .hero__scene {
+    .hero__slots {
       height: min(72vh, 620px);
+    }
+  }
+
+  .slot {
+    position: absolute;
+    aspect-ratio: 1;
+  }
+
+  .slot--retina {
+    left: 50%;
+    top: 50%;
+    width: min(340px, 90%);
+    transform: translate(-50%, -50%);
+  }
+
+  .slot--mizan,
+  .slot--hcgcc {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .slot--retina {
+      left: 30%;
+      top: 22%;
+      width: 44%;
+      transform: none;
+    }
+
+    .slot--mizan {
+      display: block;
+      left: 0;
+      top: 2%;
+      width: 30%;
+    }
+
+    .slot--hcgcc {
+      display: block;
+      right: 0;
+      bottom: 2%;
+      width: 30%;
     }
   }
 

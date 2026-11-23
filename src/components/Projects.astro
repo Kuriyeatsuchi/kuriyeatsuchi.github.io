@@ -8,10 +8,11 @@ import { projectPages, ui } from '../content/site';
       {
         projectPages.map((p) => (
           <li>
-            <a class="project-row" href={`/${p.slug}`}>
+            <a class="project-row" href={`/${p.slug}`} data-project={p.slug}>
               <span class="project-row__title">{p.title}</span>
               <span class="project-row__meta dim">{p.meta}</span>
               <span class="project-row__line">{p.line}</span>
+              <span class="project-row__slot" data-slot={`row-${p.slug}`} aria-hidden="true"></span>
             </a>
           </li>
         ))
@@ -21,6 +22,11 @@ import { projectPages, ui } from '../content/site';
 </section>
 
 <style>
+  /* Below 960px rows are one column and the objects stay in the hero. */
+  .project-row__slot {
+    display: none;
+  }
+
   .project-list {
     list-style: none;
     margin-top: var(--space-6);
@@ -38,8 +44,8 @@ import { projectPages, ui } from '../content/site';
 
   @media (min-width: 960px) {
     .project-row {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      grid-template-areas: 'title line' 'meta line';
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) 180px;
+      grid-template-areas: 'title line slot' 'meta line slot';
       align-items: start;
     }
 
@@ -54,7 +60,16 @@ import { projectPages, ui } from '../content/site';
     .project-row__line {
       grid-area: line;
     }
+
+    .project-row__slot {
+      display: block;
+      grid-area: slot;
+      width: 180px;
+      aspect-ratio: 1;
+    }
   }
+
+
 
   .project-row__title {
     font-family: var(--font-heading);
