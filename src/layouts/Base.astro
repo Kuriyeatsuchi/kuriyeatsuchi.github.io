@@ -34,6 +34,7 @@ const menu = projectPages.map((p) => ({
   links: (extra[p.slug] ?? []).filter((l): l is MenuLink => l !== null),
 }));
 const canonical = canonicalPath && Astro.site ? new URL(canonicalPath, Astro.site).href : null;
+const ogImage = Astro.site ? new URL('/og.png', Astro.site).href : null;
 const goatcounter = identity.goatcounterCode;
 ---
 <!doctype html>
@@ -53,8 +54,13 @@ const goatcounter = identity.goatcounterCode;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     {canonical && <meta property="og:url" content={canonical} />}
-    {/* TODO(content): og:image /og.png (1200×630 render of the eye) arrives in v2 */}
-    <meta name="twitter:card" content="summary" />
+    {/* Link preview: scripts/make_og.py renders public/og.png (1200 x 630). */}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ui.meta.ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
 
     <link rel="preload" href="/fonts/InstrumentSans-SemiBold.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
