@@ -51,15 +51,17 @@ import { identity, proofChips, ui } from '../content/site';
     padding-block: clamp(48px, 12vw, 144px) clamp(64px, 10vw, 112px);
   }
 
+  /* The tagline says what Yousef does, so it sits right under the name and is
+     nearly as large; the name is kept a step smaller than other page titles. */
   .hero__name {
-    font-size: var(--step-4);
+    font-size: clamp(2.25rem, 6vw, 3.25rem);
     letter-spacing: -0.02em;
   }
 
   .hero__tagline {
-    font-size: var(--step-2);
-    line-height: 1.35;
-    margin-top: var(--space-5);
+    font-size: clamp(1.5rem, 3.6vw, 2.25rem);
+    line-height: 1.25;
+    margin-top: var(--space-3);
     text-wrap: balance;
   }
 
