@@ -1,5 +1,9 @@
 ---
-import { achievements, training, ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const L = (path: string): string => localize(path, lang);
+const { achievements, training, ui } = content(lang);
 
 const MONTHS: Record<string, string> = {
   Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
@@ -50,7 +54,7 @@ function toDatetime(date: string): string | undefined {
         </div>
       )
     }
-    <p class="library-link"><a href="/library">{ui.library.seeAll}</a></p>
+    <p class="library-link"><a href={L('/library')}>{ui.library.seeAll}</a></p>
   </div>
 </section>
 
@@ -63,13 +67,13 @@ function toDatetime(date: string): string | undefined {
   .timeline {
     list-style: none;
     margin-top: var(--space-6);
-    border-left: 1px solid var(--border);
-    margin-left: 4px;
+    border-inline-start: 1px solid var(--border);
+    margin-inline-start: 4px;
   }
 
   .timeline__item {
     position: relative;
-    padding-left: var(--space-5);
+    padding-inline-start: var(--space-5);
   }
 
   .timeline__item + .timeline__item {
@@ -79,7 +83,7 @@ function toDatetime(date: string): string | undefined {
   .timeline__item::before {
     content: '';
     position: absolute;
-    left: -5px;
+    inset-inline-start: -5px;
     top: 0.55em;
     width: 9px;
     height: 9px;

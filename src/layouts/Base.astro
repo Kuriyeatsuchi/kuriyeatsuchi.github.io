@@ -1,7 +1,11 @@
 ---
 import '../styles/global.css';
 import StarField from '../components/StarField.astro';
-import { hcgcc, identity, mizan, projectPages, retina, ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const { hcgcc, identity, mizan, projectPages, retina, ui } = content(lang);
+const L = (path: string): string => localize(path, lang);
 
 interface Props {
   title: string;
@@ -33,18 +37,30 @@ const menu = projectPages.map((p) => ({
   ...p,
   links: (extra[p.slug] ?? []).filter((l): l is MenuLink => l !== null),
 }));
-const canonical = canonicalPath && Astro.site ? new URL(canonicalPath, Astro.site).href : null;
+const other = lang === 'ar' ? 'en' : 'ar';
+const abs = (path: string): string | null => (Astro.site ? new URL(path, Astro.site).href : null);
+const canonical = canonicalPath ? abs(L(canonicalPath)) : null;
+// The same page in the other language (pages without a canonical path, like the 404, have none).
+const otherPath = canonicalPath ? localize(canonicalPath, other) : null;
+const alternates = canonicalPath
+  ? [
+      { hreflang: 'en', href: abs(localize(canonicalPath, 'en')) },
+      { hreflang: 'ar', href: abs(localize(canonicalPath, 'ar')) },
+      { hreflang: 'x-default', href: abs(localize(canonicalPath, 'en')) },
+    ]
+  : [];
 const ogImage = Astro.site ? new URL('/og.png', Astro.site).href : null;
 const goatcounter = identity.goatcounterCode;
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={canonical} />}
+    {alternates.map((a) => a.href && <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#0B0D12" data-theme-color />
     {/* Light or dark, before first paint so the page never flashes. Dark unless the visitor chose light. */}
@@ -59,6 +75,7 @@ const goatcounter = identity.goatcounterCode;
     <link rel="icon" href="/favicon.svg?v=moon" type="image/svg+xml" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_SA' : 'en_US'} />
     <meta property="og:site_name" content={identity.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -91,15 +108,15 @@ const goatcounter = identity.goatcounterCode;
 
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="site-header__logo" href="/" aria-label={`${identity.name}, home`}>
+        <a class="site-header__logo" href={L('/')} aria-label={lang === 'ar' ? `${identity.name}، ${ui.nav.home}` : `${identity.name}, ${ui.nav.home}`}>
           <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32">
             <path d="M13.389 5.315A11 11 0 1 0 26.685 18.611A9.5 9.5 0 0 1 13.389 5.315Z" fill="currentColor"></path>
           </svg>
         </a>
-        <nav aria-label="Main">
+        <nav aria-label={ui.nav.main}>
           <ul class="site-nav">
             <li class="nav-projects" data-menu>
-              <a href="/#projects" aria-haspopup="true" aria-expanded="false" aria-controls="projects-menu" data-menu-trigger>
+              <a href={L('/#projects')} aria-haspopup="true" aria-expanded="false" aria-controls="projects-menu" data-menu-trigger>
                 {ui.nav.projects}
                 <svg aria-hidden="true" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 3.5 5 6.5 8 3.5"></path></svg>
               </a>
@@ -108,12 +125,12 @@ const goatcounter = identity.goatcounterCode;
                   {
                     menu.map((p) => (
                       <li class="projects-menu__item">
-                        <a class="projects-menu__title" href={`/${p.slug}`}>{p.title}</a>
+                        <a class="projects-menu__title" href={L(`/${p.slug}`)}>{p.title}</a>
                         <p class="projects-menu__meta">{p.meta}</p>
                         <ul class="projects-menu__links">
                           {p.links.map((l) => (
                             <li>
-                              <a href={l.href}>{l.label}</a>
+                              <a href={L(l.href)}>{l.label}</a>
                             </li>
                           ))}
                         </ul>
@@ -121,12 +138,21 @@ const goatcounter = identity.goatcounterCode;
                     ))
                   }
                 </ul>
-                <a class="projects-menu__all" href="/#projects">{ui.pages.allProjects}</a>
+                <a class="projects-menu__all" href={L('/#projects')}>{ui.pages.allProjects}</a>
               </div>
             </li>
-            <li><a href="/#achievements">{ui.nav.achievements}</a></li>
-            <li><a href="/library">{ui.nav.library}</a></li>
-            <li><a href="/#contact">{ui.nav.contact}</a></li>
+            <li><a href={L('/#achievements')}>{ui.nav.achievements}</a></li>
+            <li><a href={L('/library')}>{ui.nav.library}</a></li>
+            <li><a href={L('/#contact')}>{ui.nav.contact}</a></li>
+            {
+              otherPath && (
+                <li>
+                  <a class="lang-switch" href={otherPath} lang={other} hreflang={other} aria-label={ui.nav.otherLanguageLabel}>
+                    {ui.nav.otherLanguage}
+                  </a>
+                </li>
+              )
+            }
             <li>
               <button class="theme-toggle" type="button" data-theme-toggle aria-label={ui.nav.toLight}
                 data-to-light={ui.nav.toLight} data-to-dark={ui.nav.toDark}>
@@ -225,7 +251,7 @@ const goatcounter = identity.goatcounterCode;
 <style>
   .skip-link {
     position: absolute;
-    left: var(--space-4);
+    inset-inline-start: var(--space-4);
     top: var(--space-4);
     z-index: 10;
     padding: var(--space-2) var(--space-4);
@@ -259,7 +285,7 @@ const goatcounter = identity.goatcounterCode;
     place-items: center;
     width: 44px;
     height: 44px;
-    margin-left: -8px;
+    margin-inline-start: -8px;
     color: var(--text);
     transition: transform 400ms cubic-bezier(0.2, 0.75, 0.2, 1);
   }
@@ -438,7 +464,8 @@ const goatcounter = identity.goatcounterCode;
 
   .site-nav .projects-menu__all {
     display: inline-block;
-    margin: var(--space-3) 0 0 var(--space-2);
+    margin: var(--space-3) 0 0;
+    margin-inline-start: var(--space-2);
     font-size: var(--step--1);
   }
 

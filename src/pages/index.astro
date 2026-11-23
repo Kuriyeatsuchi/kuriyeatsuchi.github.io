@@ -6,7 +6,10 @@ import CompetitiveProgramming from '../components/CompetitiveProgramming.astro';
 import Achievements from '../components/Achievements.astro';
 import Contact from '../components/Contact.astro';
 import ProjectScene from '../components/ProjectScene.astro';
-import { competitiveProgramming, ui } from '../content/site';
+import { content, langOf } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const { competitiveProgramming, ui } = content(lang);
 ---
 <Base title={ui.meta.title} description={ui.meta.description} canonicalPath="/">
   <ProjectScene />

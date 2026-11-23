@@ -67,3 +67,12 @@
 
   color-scheme: light;
 }
+
+/* Arabic pages: Arabic system fonts (Instrument Sans and IBM Plex have no Arabic letters).
+   Latin words inside Arabic text still use the site fonts. */
+:root[lang='ar'] {
+  --font-heading: 'Instrument Sans', 'IBM Plex Sans Arabic', 'SF Arabic', 'Geeza Pro', 'Noto Sans Arabic',
+    'Segoe UI', Tahoma, system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', 'IBM Plex Sans Arabic', 'SF Arabic', 'Geeza Pro', 'Noto Sans Arabic',
+    'Segoe UI', Tahoma, system-ui, sans-serif;
+}

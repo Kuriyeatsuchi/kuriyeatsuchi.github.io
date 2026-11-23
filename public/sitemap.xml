@@ -1,18 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://yousefalsharif.me/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/" />
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/ar/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/" />
   </url>
   <url>
     <loc>https://yousefalsharif.me/mizan</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/mizan" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/mizan" />
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/ar/mizan</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/mizan" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/mizan" />
   </url>
   <url>
     <loc>https://yousefalsharif.me/retina</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/retina" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/retina" />
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/ar/retina</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/retina" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/retina" />
   </url>
   <url>
     <loc>https://yousefalsharif.me/hcgcc</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/hcgcc" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/hcgcc" />
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/ar/hcgcc</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/hcgcc" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/hcgcc" />
   </url>
   <url>
     <loc>https://yousefalsharif.me/library</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/library" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/library" />
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/ar/library</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://yousefalsharif.me/library" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://yousefalsharif.me/ar/library" />
   </url>
 </urlset>

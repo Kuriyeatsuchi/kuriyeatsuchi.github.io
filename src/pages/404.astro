@@ -1,6 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { identity, ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const L = (path: string): string => localize(path, lang);
+const { identity, ui } = content(lang);
 
 /*
  * The 404 eye, drawn as SVG at build time (no WebGL on this page).
@@ -47,7 +51,7 @@ const fibres = Array.from({ length: 150 }, () => {
           <p class="not-found__code" aria-hidden="true">404</p>
           <h1 class="not-found__title">{ui.notFound.heading}</h1>
           <p class="not-found__body dim">{ui.notFound.body}</p>
-          <a class="btn btn-primary not-found__home" href="/">{ui.notFound.home}</a>
+          <a class="btn btn-primary not-found__home" href={L('/')}>{ui.notFound.home}</a>
         </div>
 
         <svg class="not-found__eye" viewBox="-110 -110 220 220" aria-hidden="true" data-lost-eye>

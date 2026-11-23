@@ -1,7 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectNav from '../components/ProjectNav.astro';
-import { hcgcc, hcgccModel, ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const L = (path: string): string => localize(path, lang);
+const { hcgcc, hcgccModel, ui } = content(lang);
 
 // Slide 2 of the deck, rendered with pdftoppm and converted to WebP, unedited.
 // Showing the deck's own logos here is an approved exception to rule 4
@@ -16,11 +20,11 @@ const slide = {
 const b = ui.hcgccBuilder;
 const shades = ['var(--text)', 'var(--shade-2)', 'var(--shade-3)'];
 ---
-<Base title={`${hcgcc.title} · Yousef Alsharif`} description={hcgcc.theCase} canonicalPath="/hcgcc">
+<Base title={`${hcgcc.title} · ${ui.meta.title}`} description={hcgcc.theCase} canonicalPath="/hcgcc">
   <article>
     <header class="page-head">
       <div class="container">
-        <a class="back" href="/#projects">{ui.pages.allProjects}</a>
+        <a class="back" href={L('/#projects')}>{ui.pages.allProjects}</a>
         <h1 class="page-title">{hcgcc.title}</h1>
         <p class="meta">{hcgcc.competition}</p>
         <p class="result">{hcgcc.result}</p>
@@ -111,7 +115,8 @@ const shades = ['var(--text)', 'var(--shade-2)', 'var(--shade-3)'];
 </Base>
 
 <script>
-  import { ui } from '../content/site';
+  import { content, pageLang } from '../content/i18n';
+  const { ui } = content(pageLang());
 
   const root = document.querySelector<HTMLElement>('[data-builder]');
   if (root) {
@@ -235,7 +240,7 @@ const shades = ['var(--text)', 'var(--shade-2)', 'var(--shade-3)'];
     border-bottom: 1px solid var(--border);
     color: var(--text-dim);
     font: inherit;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
   }
 

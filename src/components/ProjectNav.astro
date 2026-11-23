@@ -1,5 +1,9 @@
 ---
-import { projectPages, ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const { projectPages, ui } = content(lang);
+const L = (path: string): string => localize(path, lang);
 
 interface Props {
   current: (typeof projectPages)[number]['slug'];
@@ -11,9 +15,9 @@ const next = projectPages[(i + 1) % projectPages.length];
 ---
 <nav class="section project-nav" aria-label={ui.pages.navLabel}>
   <div class="container project-nav__inner">
-    <a href="/#projects">{ui.pages.allProjects}</a>
+    <a href={L('/#projects')}>{ui.pages.allProjects}</a>
     {next && next.slug !== current && (
-      <a class="project-nav__next" href={`/${next.slug}`}>
+      <a class="project-nav__next" href={L(`/${next.slug}`)}>
         <span class="dim">{ui.pages.nextProject}</span>
         <span>{next.title}</span>
       </a>
@@ -34,7 +38,7 @@ const next = projectPages[(i + 1) % projectPages.length];
   .project-nav__next {
     display: flex;
     flex-direction: column;
-    text-align: right;
+    text-align: end;
     font-family: var(--font-heading);
     font-size: var(--step-1);
   }

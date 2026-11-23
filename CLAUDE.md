@@ -34,6 +34,18 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 
 ---
 
+## Languages (English and Arabic)
+
+- English at `/…`, Arabic at `/ar/…` (Yousef asked for it, 2026-11-24). `src/pages/ar/*.astro` only
+  render the English page file; components read the language with `langOf(Astro.url)` and their
+  text with `content(lang)` from `src/content/i18n.ts`. Browser scripts use `pageLang()`.
+- Arabic text lives in `src/content/site.ar.ts` and `src/content/library.ar.ts`, typed against the
+  English, so a missing field is a type error. Same facts and numbers as the English; it is a
+  translation, so it is PROPOSED until Yousef approves it.
+- Internal links go through `localize()` (the `L()` helper in components). Use logical CSS
+  (`margin-inline-start`, `inset-inline-end`, `text-align: start`) so the Arabic pages mirror.
+- Arabic uses system Arabic fonts; letter-spacing is forced to 0 on Arabic text.
+
 ## Hosting (GitHub Pages, static only)
 
 - Custom apex domain: `yousefalsharif.me`. `public/CNAME` must contain exactly `yousefalsharif.me`.

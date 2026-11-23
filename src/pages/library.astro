@@ -1,7 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { library, type LibraryCategory, type LibraryEntry } from '../content/library';
-import { ui } from '../content/site';
+import { type LibraryCategory, type LibraryEntry } from '../content/library';
+import { content, langOf } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const { ui, library } = content(lang);
 
 const L = ui.library;
 const order: LibraryCategory[] = ['award', 'competition', 'program', 'course'];
@@ -20,7 +23,7 @@ const years = library.map((e) => e.year).filter((y): y is number => y !== null);
 const span = `${Math.min(...years)}–${Math.max(...years)}`;
 const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.replace('{n}', String(n)));
 ---
-<Base title={`${L.heading} · Yousef Alsharif`} description={L.intro} canonicalPath="/library">
+<Base title={`${L.heading} · ${ui.meta.title}`} description={L.intro} canonicalPath="/library">
   <header class="page-head lib-head">
     <div class="container">
       <h1 class="page-title">{L.heading}</h1>
@@ -122,8 +125,8 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
 </Base>
 
 <script>
-  import { library } from '../content/library';
-  import { ui } from '../content/site';
+  import { content, pageLang } from '../content/i18n';
+  const { ui, library } = content(pageLang());
 
   const L = ui.library;
   const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-entry]'));
@@ -379,7 +382,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
     padding: 0 var(--space-4);
     background: none;
     border: 0;
-    border-left: 1px solid var(--border-strong);
+    border-inline-start: 1px solid var(--border-strong);
     color: var(--text-dim);
     font: inherit;
     font-size: var(--step--1);
@@ -388,7 +391,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
   }
 
   .lib-filters button:first-child {
-    border-left: 0;
+    border-inline-start: 0;
   }
 
   .lib-filters button:hover {
@@ -403,7 +406,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
   }
 
   .lib-filters .mono {
-    margin-left: 4px;
+    margin-inline-start: 4px;
     opacity: 0.7;
   }
 
@@ -508,7 +511,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
   /* A small count when one entry holds several certificates. */
   .lib-row__stack {
     position: absolute;
-    right: 4px;
+    inset-inline-end: 4px;
     bottom: 4px;
     padding: 0 5px;
     background: var(--bg);
@@ -560,7 +563,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
       flex-direction: column;
       align-items: flex-end;
       gap: var(--space-1);
-      text-align: right;
+      text-align: end;
     }
   }
 
@@ -581,6 +584,15 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
 
   .lib-row__link:hover .lib-row__view span {
     transform: translateX(4px);
+  }
+
+  /* Right-to-left (Arabic): the arrow points left and nudges left. */
+  :global([dir='rtl']) .lib-row__view span {
+    transform: scaleX(-1);
+  }
+
+  :global([dir='rtl']) .lib-row__link:hover .lib-row__view span {
+    transform: scaleX(-1) translateX(4px);
   }
 
   .lib-empty {
@@ -713,7 +725,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
   .viewer__close {
     position: absolute;
     top: clamp(8px, 2vw, 20px);
-    right: clamp(8px, 2vw, 20px);
+    inset-inline-end: clamp(8px, 2vw, 20px);
     display: grid;
     place-items: center;
     width: 44px;

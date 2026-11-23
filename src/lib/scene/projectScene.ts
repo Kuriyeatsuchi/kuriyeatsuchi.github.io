@@ -32,7 +32,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { makeBars, makeEye, makeTrend, setSceneTheme, type SceneObject } from './objects';
 import { degrade, judge, measure } from '../quality/metrics';
 import { REAL_LIMITS, fundusFromFile, fundusFromUrl, type RealFundus } from '../quality/real';
-import { ui } from '../../content/site';
+import { content, pageLang } from '../../content/i18n';
 
 type Key = 'mizan' | 'retina' | 'hcgcc';
 const KEYS: readonly Key[] = ['mizan', 'retina', 'hcgcc'];
@@ -102,6 +102,7 @@ function textAt(x: number, y: number, r: number, spread: number): boolean {
 }
 
 export function mount(canvas: HTMLCanvasElement): void {
+  const { ui } = content(pageLang());
   let renderer: WebGLRenderer;
   try {
     renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });

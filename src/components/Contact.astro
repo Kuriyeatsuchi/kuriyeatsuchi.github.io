@@ -6,7 +6,10 @@
  * Email: stored reversed in two parts and assembled in the browser, so the
  * address never appears as plain text in the HTML.
  */
-import { aboutBio, identity, ui } from '../content/site';
+import { content, langOf } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const { aboutBio, identity, ui } = content(lang);
 
 const display = (url: string): string => url.replace(/^https?:\/\/(www\.)?/, '');
 ---

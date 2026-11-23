@@ -1,7 +1,11 @@
 ---
 // The fixed WebGL canvas behind the home page (src/lib/scene/projectScene.ts).
 // three.js loads only when the browser is idle, after the text has rendered.
-import { ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const L = (path: string): string => localize(path, lang);
+const { ui } = content(lang);
 ---
 <canvas class="project-scene" data-project-scene aria-hidden="true"></canvas>
 
@@ -15,7 +19,7 @@ import { ui } from '../content/site';
   <ul class="eye-result__rows" data-eye-rows></ul>
   <p class="eye-result__warn" data-eye-warn hidden>{ui.retinaGate.notFundus}</p>
   <p class="eye-result__private">{ui.retinaGate.privacy}</p>
-  <a class="eye-result__more" href="/retina#gate">{ui.eyeGate.more}</a>
+  <a class="eye-result__more" href={L('/retina#gate')}>{ui.eyeGate.more}</a>
 </section>
 
 <script>
@@ -102,7 +106,7 @@ import { ui } from '../content/site';
   .eye-result__close {
     position: absolute;
     top: var(--space-2);
-    right: var(--space-2);
+    inset-inline-end: var(--space-2);
     display: grid;
     place-items: center;
     width: 36px;

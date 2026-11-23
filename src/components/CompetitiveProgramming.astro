@@ -7,7 +7,10 @@
  * index.astro renders this section only when at least one write-up exists,
  * so it never shows up empty.
  */
-import { competitiveProgramming as cp, ui } from '../content/site';
+import { content, langOf } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const { competitiveProgramming: cp, ui } = content(lang);
 
 const profileUrl = cp.codeforcesHandle
   ? `https://codeforces.com/profile/${encodeURIComponent(cp.codeforcesHandle)}`

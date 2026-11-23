@@ -296,6 +296,11 @@ export const ui = {
     // PROPOSED (labels for the light/dark switch, read by screen readers)
     toLight: 'Switch to light mode',
     toDark: 'Switch to dark mode',
+    // PROPOSED (screen-reader labels: the moon logo, the main menu, the language switch)
+    home: 'home',
+    main: 'Main',
+    otherLanguage: 'العربية',
+    otherLanguageLabel: 'Arabic version',
   },
   hero: {
     viewWork: 'View work',
@@ -406,6 +411,7 @@ export const ui = {
     check: 'Check',
     value: 'Value',
     allowed: 'Allowed',
+    to: 'to', // between two numbers: 45 to 150
     result: 'Result',
     brightness: 'Brightness',
     contrastCheck: 'Contrast',
@@ -466,6 +472,16 @@ export const ui = {
   },
 } as const;
 
+/** The shape of `ui` with every string widened, so the Arabic copy (site.ar.ts) can match it. */
+type Widen<T> = T extends string
+  ? string
+  : T extends number
+    ? number
+    : T extends readonly (infer U)[]
+      ? readonly Widen<U>[]
+      : { readonly [K in keyof T]: Widen<T[K]> };
+export type Ui = Widen<typeof ui>;
+
 /* ------------------------------------------------------------------ */
 /* Project pages (order on the home page and in "Next project")        */
 /* ------------------------------------------------------------------ */
@@ -492,3 +508,5 @@ export const hcgccModel = {
     { name: 'Pay-for-Progress', amountM: 23 },
   ],
 } as const;
+
+export type HcgccModel = Widen<typeof hcgccModel>;

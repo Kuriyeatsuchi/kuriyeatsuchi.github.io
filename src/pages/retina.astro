@@ -1,7 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectNav from '../components/ProjectNav.astro';
-import { retina, ui } from '../content/site';
+import { content, langOf, localize } from '../content/i18n';
+
+const lang = langOf(Astro.url);
+const L = (path: string): string => localize(path, lang);
+const { retina, ui } = content(lang);
 
 const gate = ui.retinaGate;
 const samples = [
@@ -10,11 +14,11 @@ const samples = [
   { key: 'dark', label: gate.samples.dark, src: '/retina/samples/dark.webp' },
 ];
 ---
-<Base title={`${retina.title} · Yousef Alsharif`} description={retina.oneLine} canonicalPath="/retina">
+<Base title={`${retina.title} · ${ui.meta.title}`} description={retina.oneLine} canonicalPath="/retina">
   <article>
     <header class="page-head">
       <div class="container">
-        <a class="back" href="/#projects">{ui.pages.allProjects}</a>
+        <a class="back" href={L('/#projects')}>{ui.pages.allProjects}</a>
         <h1 class="page-title">{retina.title}</h1>
         <p class="meta">{retina.period}</p>
         <p class="lede">{retina.oneLine}</p>
@@ -147,7 +151,8 @@ const samples = [
   import type { Fundus } from '../lib/quality/fundus';
   import { degrade, fingerprint, judge, measure, type Settings } from '../lib/quality/metrics';
   import { REAL_LIMITS, fundusFromFile, fundusFromUrl } from '../lib/quality/real';
-  import { ui } from '../content/site';
+  import { content, pageLang } from '../content/i18n';
+  const { ui } = content(pageLang());
 
   const G = ui.retinaGate;
   const limits = REAL_LIMITS;
@@ -184,7 +189,7 @@ const samples = [
       const m = measure(px, fundus);
       const problems = judge(m, limits);
       const rows: [string, string, string, boolean][] = [
-        [G.brightness, m.brightness.toFixed(0), `${limits.brightness[0]} to ${limits.brightness[1]}`,
+        [G.brightness, m.brightness.toFixed(0), `${limits.brightness[0]} ${G.to} ${limits.brightness[1]}`,
           m.brightness >= limits.brightness[0] && m.brightness <= limits.brightness[1]],
         [G.contrastCheck, m.contrast.toFixed(2), `≥ ${limits.contrast.toFixed(2)}`, m.contrast >= limits.contrast],
         [G.sharpness, m.sharpness.toFixed(2), `≥ ${limits.sharpness.toFixed(2)}`, m.sharpness >= limits.sharpness],
@@ -351,7 +356,7 @@ const samples = [
     left: 0;
     right: 0;
     bottom: -1.9em;
-    text-align: left;
+    text-align: start;
     color: var(--text-dim);
     font-size: var(--step--1);
   }
@@ -436,8 +441,9 @@ const samples = [
 
   .gate__table th,
   .gate__table td {
-    text-align: left;
-    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    text-align: start;
+    padding-block: var(--space-3);
+    padding-inline: 0 var(--space-3);
     border-bottom: 1px solid var(--border);
     font-weight: 400;
   }
