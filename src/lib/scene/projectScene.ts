@@ -15,8 +15,8 @@
  *   Scrolling sends every object back to its home position and rotation.
  * - Over text, an object fades so the text reads as if the object were behind it.
  * - Idle: after a few seconds without input, objects drift and turn very slowly.
- * - The eye turns toward the cursor, or toward the project you hover. Its shape never changes;
- *   it reacts with its pupil.
+ * - The eye always follows the cursor (hovering its project row widens the pupil). Its shape
+ *   never changes; it reacts with its pupil.
  * - Give the eye a retina photo and it runs the stage-1 quality gate on it, right in the
  *   browser (src/lib/quality/real.ts); a small panel beside the eye shows the verdict.
  *   Three example photos sit in the hero: drag one onto the eye, or tap it and it flies in.
@@ -412,12 +412,10 @@ export function mount(canvas: HTMLCanvasElement): void {
       b.obj.setOpacity(b.opacity * flicker);
 
       if (b.key === 'retina') {
-        // Look at the hovered project's object, else at the cursor.
-        const other = hovered && hovered !== 'retina' ? bodies.find((o) => o.key === hovered && o.visible) : undefined;
-        const tx = other ? other.x : hovered === 'retina' ? x : pointerX;
-        const ty = other ? other.y : hovered === 'retina' ? y : pointerY;
-        const lx = tx < 0 ? 0 : clamp((tx - x) / Math.max(200, w * 0.4), -0.7, 0.7);
-        const ly = ty < 0 ? 0 : clamp((ty - y) / Math.max(200, h * 0.5), -0.5, 0.5);
+        // Always follow the cursor. tanh eases toward the limit instead of stopping dead,
+        // so the eye keeps responding even when the cursor is far across the screen.
+        const lx = pointerX < 0 ? 0 : 0.9 * Math.tanh((pointerX - x) / Math.max(300, w * 0.45));
+        const ly = pointerY < 0 ? 0 : 0.6 * Math.tanh((pointerY - y) / Math.max(300, h * 0.55));
         eye.look(lx, ly);
         placePanel(x, y, b.radius);
       }
