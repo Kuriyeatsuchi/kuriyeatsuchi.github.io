@@ -93,24 +93,27 @@ const slide = {
     margin-top: var(--space-2);
   }
 
-  /* Headline numbers: a plain row, no boxes. Stacks on narrow screens. */
+  /* Headline numbers: three plain lines, value then label. No boxes.
+     On narrow screens the label drops under its value. */
   .figures {
     display: grid;
-    gap: var(--space-4) var(--space-6);
+    gap: var(--space-3);
     list-style: none;
     margin-top: var(--space-6);
-  }
-
-  @media (min-width: 640px) {
-    .figures {
-      grid-template-columns: repeat(3, auto);
-      justify-content: start;
-    }
   }
 
   .figures li {
     display: flex;
     flex-direction: column;
+  }
+
+  @media (min-width: 480px) {
+    .figures li {
+      display: grid;
+      grid-template-columns: 8.5rem 1fr;
+      align-items: baseline;
+      gap: var(--space-4);
+    }
   }
 
   .figures__value {
