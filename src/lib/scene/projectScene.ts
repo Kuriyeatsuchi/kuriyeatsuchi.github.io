@@ -30,7 +30,9 @@
  *   dragging spins the shape (the eye too, while it keeps watching the finger), and tapping
  *   it plays its effect (Mizan's lines straighten or scatter, Beyond the Streak shows its next
  *   chart, the eye's pupil widens). Three ways out: tap anywhere else, press "Done", or start
- *   scrolling anywhere off the shape (which scrolls in the same motion). On phones the shapes
+ *   scrolling anywhere off the shape (which scrolls in the same motion). The eye is different:
+ *   in its focus mode a finger anywhere off it is something to look at, not a way out, so the
+ *   eye leaves only with "Done" (or Esc). Tapping a corner shape still swaps it in. On phones the shapes
  *   stay in the hero and scroll away with it. Reduced motion: no drifting, turning or glitching;
  *   objects still follow scrolling and can be dragged. Drawing stops when the tab is hidden.
  */
@@ -280,6 +282,8 @@ export function mount(canvas: HTMLCanvasElement): void {
     old.rot.y = 0;
     wake();
   };
+  /** Focus mode on the eye: the finger is something to watch, so touching off it doesn't leave. */
+  const eyeFocus = (): boolean => focus && mainKey() === 'retina';
   const enterFocus = (): void => {
     if (focus) return;
     focus = true;
@@ -308,6 +312,7 @@ export function mount(canvas: HTMLCanvasElement): void {
   doneBtn?.addEventListener('click', exitFocus);
 
   let tap: { x: number; y: number; t: number; id: number } | null = null;
+  let lookId = -1; // the finger the eye is watching in its focus mode
   window.addEventListener(
     'pointerdown',
     (e) => {
@@ -316,6 +321,12 @@ export function mount(canvas: HTMLCanvasElement): void {
         if (e.target instanceof Element && e.target.closest(INTERACTIVE)) return;
         tap = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
         const b = touchHit(e.clientX, e.clientY);
+        if (eyeFocus() && (!b || role[b.key] === 'main')) {
+          pointerX = e.clientX;
+          pointerY = e.clientY;
+          lookId = e.pointerId;
+          wake();
+        }
         if (focus && b && role[b.key] === 'main') {
           pointerX = e.clientX;
           pointerY = e.clientY;
@@ -337,7 +348,7 @@ export function mount(canvas: HTMLCanvasElement): void {
       if (moved > 10 || performance.now() - t0.t > 500) return; // a drag or a long press
       const b = touchHit(e.clientX, e.clientY);
       if (!b) {
-        exitFocus(); // way out 1: tap anywhere else
+        if (!eyeFocus()) exitFocus(); // way out 1: tap anywhere else (not for the eye)
         return;
       }
       if (role[b.key] !== 'main') swapIn(b.key);
@@ -357,7 +368,7 @@ export function mount(canvas: HTMLCanvasElement): void {
       if (isNarrow()) {
         if (!focus) return; // outside focus mode, shapes never block scrolling
         const b = touchHit(t.clientX, t.clientY);
-        if (b) e.preventDefault();
+        if (b || eyeFocus()) e.preventDefault(); // the eye watches the finger instead
         else exitFocus();
         return;
       }
@@ -389,7 +400,7 @@ export function mount(canvas: HTMLCanvasElement): void {
   window.addEventListener(
     'pointermove',
     (e) => {
-      if (e.pointerType === 'mouse' || (focus && drag && e.pointerId === drag.id)) {
+      if (e.pointerType === 'mouse' || (focus && drag && e.pointerId === drag.id) || (eyeFocus() && e.pointerId === lookId)) {
         pointerX = e.clientX;
         pointerY = e.clientY;
       }
