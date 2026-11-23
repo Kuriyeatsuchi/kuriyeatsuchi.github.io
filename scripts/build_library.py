@@ -38,7 +38,8 @@ E = [
   ('kmc-2025', 'competition', 2025, '2025-12', 'KAUST Mathematics Competition (KMC) 2025',
    'Senior Level, 13 December 2025', 'KAUST Academy',
    ['Kaust/KMC_2025_Participation_Yousef_Emad_Alsharif.pdf']),
-  ('bebras', 'competition', 2025, '2025-01', 'Bebras Informatics Challenge',
+  # Bronze 2025 per Yousef (2026-11-24); the medal certificate isn't in the folder yet.
+  ('bebras', 'award', 2025, '2025-01', 'Bebras Informatics Challenge 2025: Bronze Medal',
    'Participated in 2023, 2024 and 2025', 'Mawhiba',
    ['Mawhiba/Bebras 2025.pdf', 'Mawhiba/Bebras 2024.pdf', 'Mawhiba/Bebras 2023.pdf']),
   ('kangaroo', 'competition', 2025, '2025-01', 'Kangaroo Mathematics Competition',

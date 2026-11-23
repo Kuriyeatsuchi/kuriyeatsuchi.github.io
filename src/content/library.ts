@@ -178,10 +178,10 @@ export const library: readonly LibraryEntry[] = [
   },
   {
     "slug": "bebras",
-    "category": "competition",
+    "category": "award",
     "year": 2025,
     "sort": "2025-01",
-    "title": "Bebras Informatics Challenge",
+    "title": "Bebras Informatics Challenge 2025: Bronze Medal",
     "detail": "Participated in 2023, 2024 and 2025",
     "issuer": "Mawhiba",
     "files": [
