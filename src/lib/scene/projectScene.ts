@@ -634,7 +634,7 @@ export function mount(canvas: HTMLCanvasElement): void {
       }
       if (focus && doneBtn && role[b.key] === 'main') {
         doneBtn.style.left = `${x}px`;
-        doneBtn.style.top = `${Math.min(h - 56, y + b.radius / 0.82 + 8)}px`;
+        doneBtn.style.top = `${Math.min(h - 64, y + b.radius / 0.82 + 36)}px`;
       }
     }
     if (returning && !busy) returning = false;
