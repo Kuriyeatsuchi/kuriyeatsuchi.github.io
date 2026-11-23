@@ -19,12 +19,12 @@ const slide = {
     <p class="hcgcc__result">{hcgcc.result}</p>
     <p class="hcgcc__team dim">{hcgcc.teamCredit}</p>
 
-    <ul class="numbers">
+    <ul class="figures">
       {
         hcgcc.headlineNumbers.map((n) => (
-          <li class="number">
-            <span class="number__value mono">{n.value}</span>
-            <span class="number__label">{n.label}</span>
+          <li>
+            <span class="figures__value mono">{n.value}</span>
+            <span class="figures__label">{n.label}</span>
           </li>
         ))
       }
@@ -93,38 +93,33 @@ const slide = {
     margin-top: var(--space-2);
   }
 
-  .numbers {
+  /* Headline numbers: a plain row, no boxes. Stacks on narrow screens. */
+  .figures {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4) var(--space-6);
     list-style: none;
     margin-top: var(--space-6);
   }
 
   @media (min-width: 640px) {
-    .numbers {
-      grid-template-columns: repeat(3, 1fr);
+    .figures {
+      grid-template-columns: repeat(3, auto);
+      justify-content: start;
     }
   }
 
-  .number {
+  .figures li {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-5);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
   }
 
-  .number__value {
-    font-size: var(--step-2);
-    line-height: 1.2;
-    color: var(--accent);
+  .figures__value {
+    font-size: var(--step-1);
+    line-height: 1.3;
   }
 
-  .number__label {
+  .figures__label {
     color: var(--text-dim);
-    font-size: var(--step--1);
   }
 
   .hcgcc__block {
@@ -142,8 +137,6 @@ const slide = {
   .deck__preview {
     display: block;
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
   }
 
   .deck__preview img {

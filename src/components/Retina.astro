@@ -12,15 +12,13 @@ import { retina, ui } from '../content/site';
   {retina.whyItMatters && <p class="retina__why">{retina.whyItMatters}</p>}
   <p class="retina__origin dim">{retina.origin}</p>
 
-  <div class="stages">
-    <div class="stage">
-      <h4 class="subhead">{ui.retina.stage1}</h4>
-      <p class="cap">{retina.stage1}</p>
-    </div>
-    <div class="stage">
-      <h4 class="subhead">{ui.retina.stage2}</h4>
-      <p class="cap">{retina.stage2}</p>
-    </div>
+  <div class="retina__block">
+    <h4 class="subhead">{ui.retina.stage1}</h4>
+    <p class="cap">{retina.stage1}</p>
+  </div>
+  <div class="retina__block">
+    <h4 class="subhead">{ui.retina.stage2}</h4>
+    <p class="cap">{retina.stage2}</p>
   </div>
 
   {
@@ -55,23 +53,8 @@ import { retina, ui } from '../content/site';
     margin-top: var(--space-4);
   }
 
-  .stages {
-    display: grid;
-    gap: var(--space-4);
+  .retina__block {
     margin-top: var(--space-6);
-  }
-
-  @media (min-width: 640px) {
-    .stages {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .stage {
-    padding: var(--space-5);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
   }
 
   /* Source text starts lowercase (CONTENT.md); capitalize visually only. */
@@ -92,9 +75,6 @@ import { retina, ui } from '../content/site';
 
   .disclaimer {
     margin-top: var(--space-6);
-    padding: var(--space-3) var(--space-4);
-    border-left: 3px solid var(--accent);
-    background: var(--surface);
-    font-size: var(--step--1);
+    color: var(--text-dim);
   }
 </style>
