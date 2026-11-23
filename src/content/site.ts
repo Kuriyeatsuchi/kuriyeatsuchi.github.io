@@ -239,7 +239,8 @@ export const achievements: readonly Achievement[] = [
   {
     date: 'Apr 2024',
     title:
-      'ATHKA 2024 (National Olympiad for Programming & AI), Bronze Medal, Intermediate Division.',
+      // Trailing period dropped on the site (Yousef's review, 2026-11-23).
+      'ATHKA 2024 (National Olympiad for Programming & AI), Bronze Medal, Intermediate Division',
     detail:
       'One of 70 medalists from 260,000+ registrants; reached the 298-student final in Riyadh.',
   },
