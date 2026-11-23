@@ -13,9 +13,11 @@ interface Props {
   /** Path for the canonical URL, e.g. "/". Omit for pages that shouldn't be indexed. */
   canonicalPath?: string;
   noindex?: boolean;
+  /** The 404 page: GitHub Pages serves one 404.html for every missing address. */
+  notFound?: boolean;
 }
 
-const { title, description, canonicalPath, noindex = false } = Astro.props;
+const { title, description, canonicalPath, noindex = false, notFound = false } = Astro.props;
 
 // Projects menu: each project's page plus its own links (only the ones that exist).
 type MenuLink = { label: string; href: string };
@@ -62,6 +64,14 @@ const goatcounter = identity.goatcounterCode;
     {canonical && <link rel="canonical" href={canonical} />}
     {alternates.map((a) => a.href && <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
     {noindex && <meta name="robots" content="noindex" />}
+    {
+      notFound && lang === 'en' && (
+        <script is:inline>
+          // A missing Arabic address (/ar/...) gets the Arabic "page not found" instead.
+          if (location.pathname === '/ar' || location.pathname.indexOf('/ar/') === 0) location.replace('/ar/404/');
+        </script>
+      )
+    }
     <meta name="theme-color" content="#0B0D12" data-theme-color />
     {/* Light or dark, before first paint so the page never flashes. Dark unless the visitor chose light. */}
     <script is:inline>

@@ -70,8 +70,8 @@ export const hcgcc: Hcgcc = {
   // The deck's own title stays as it is.
   competition: 'مسابقة هارفارد كريمسون العالمية لدراسات الحالة 2026',
   result: 'ضمن أفضل 50 فريقًا عالميًا',
-  // Names in Latin letters until Yousef gives the Arabic spellings his teammates use.
-  teamCredit: 'فريق Fortune: Abdulaziz Alsaghyir, Yousef Alsharif, Abdullah Alruwais, Ahmad Alhussain',
+  // Arabic spellings from Yousef (2026-11-24).
+  teamCredit: 'فريق Fortune: عبدالعزيز الصغير، يوسف الشريف، عبدالله الرويس، أحمد الحصين',
   theCase: 'نما عدد مستخدمي دولينجو اليوميين 23% بينما لم تنمُ الحجوزات إلا 8%.',
   answerIntro: '«امنح التعلّم مجانًا، وبِع الإثبات»، خطة من ثلاثة أجزاء:',
   plan: [
