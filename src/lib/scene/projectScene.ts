@@ -15,8 +15,8 @@
  *   Scrolling sends every object back to its home position and rotation.
  * - Over text, an object fades so the text reads as if the object were behind it.
  * - Idle: after a few seconds without input, objects drift and turn very slowly.
- * - The eye turns toward the cursor, or toward the project you hover, and squints while the
- *   pointer is over text.
+ * - The eye turns toward the cursor, or toward the project you hover. Its shape never changes;
+ *   it reacts with its pupil.
  * - Give the eye a retina photo and it runs the stage-1 quality gate on it, right in the
  *   browser (src/lib/quality/real.ts); a small panel beside the eye shows the verdict.
  *   Three example photos sit in the hero: drag one onto the eye, or tap it and it flies in.
@@ -265,8 +265,6 @@ export function mount(canvas: HTMLCanvasElement): void {
         }
       } else if (e.pointerType === 'mouse') {
         const over = e.target instanceof Element && e.target.closest(INTERACTIVE);
-        // Squint at text the visitor is pointing at (reading).
-        eye.squint(!over && e.target instanceof Element && holdsText(e.target) ? 1 : 0);
         const h1 = over ? null : hit(e.clientX, e.clientY);
         document.documentElement.style.cursor = h1 ? (h1.d < h1.body.radius * 0.6 ? 'move' : 'grab') : '';
       }
@@ -520,8 +518,6 @@ export function mount(canvas: HTMLCanvasElement): void {
     warn.hidden = result.looksLikeFundus;
     if (problems.length) {
       eye.pupilFor(0.55, 1.6);
-      eye.squint(1);
-      setTimeout(() => eye.squint(0), 700);
     } else {
       eye.pupilFor(1.9, 1.4);
     }

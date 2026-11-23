@@ -11,7 +11,7 @@
  *   Hovering its project row straightens the trend lines.
  * - The eye: a ball of points with iris rings facing the viewer and a few vessels. The iris
  *   is recomputed from the pupil size, so the pupil can widen or narrow. The scene sets where
- *   it looks. A blink squashes the eye flat and back in 0.2 s; a squint narrows it partway.
+ *   it looks. The eye's shape never changes: it reacts only with its pupil and its gaze.
  * - Beyond the Streak has three designs: two bars (users +23%, bookings +8%), a stacked
  *   column of the three plan parts ($81M, $16M, $23M), and two lines that drift apart
  *   (+23% vs +8%). Hovering its row raises the bars.
@@ -42,9 +42,6 @@ export interface SceneObject {
 export interface EyeObject extends SceneObject {
   /** Where the eye should look: yaw and pitch in radians. */
   look(yaw: number, pitch: number): void;
-  blink(): void;
-  /** 0 = open, 1 = squinting. */
-  squint(amount: number): void;
   /** Hold the pupil at `size` (1 = normal) for `seconds`. */
   pupilFor(size: number, seconds: number): void;
 }
@@ -273,9 +270,6 @@ export function makeEye(pointSize: number): EyeObject {
   let pitch = 0;
   let yawTarget = 0;
   let pitchTarget = 0;
-  let blinkT = -1;
-  let squint = 0;
-  let squintTarget = 0;
   let holdSize = 1;
   let holdFor = 0;
   const placeIris = (): void => {
@@ -297,12 +291,6 @@ export function makeEye(pointSize: number): EyeObject {
       yawTarget = y;
       pitchTarget = p;
     },
-    blink() {
-      if (blinkT < 0) blinkT = 0;
-    },
-    squint(amount) {
-      squintTarget = amount;
-    },
     pupilFor(size, seconds) {
       holdSize = size;
       holdFor = seconds;
@@ -313,16 +301,7 @@ export function makeEye(pointSize: number): EyeObject {
       if (Math.abs(pupil - lastPupil) > 0.002) placeIris();
       yaw = approach(yaw, yawTarget, dt, 6);
       pitch = approach(pitch, pitchTarget, dt, 6);
-      squint = approach(squint, squintTarget, dt, 5);
-      let open = 1;
-      if (blinkT >= 0) {
-        blinkT += dt;
-        const t = blinkT / 0.2;
-        if (t >= 1) blinkT = -1;
-        else open = 1 - Math.sin(Math.PI * t) * 0.94;
-      }
       s.inner.rotation.set(pitch, yaw, 0);
-      s.inner.scale.y = open * (1 - 0.42 * squint);
     },
   };
 }
