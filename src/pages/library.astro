@@ -601,7 +601,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
   }
 
   .viewer::backdrop {
-    background: rgba(5, 6, 9, 0.94);
+    background: var(--scrim);
   }
 
   .viewer__inner {
@@ -634,7 +634,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
     height: auto;
     object-fit: contain;
     background: #fff;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 30px 80px var(--shadow);
   }
 
   .viewer__side {

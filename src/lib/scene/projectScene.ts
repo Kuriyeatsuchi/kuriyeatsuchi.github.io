@@ -29,7 +29,7 @@
  */
 
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { makeBars, makeEye, makeTrend, type SceneObject } from './objects';
+import { makeBars, makeEye, makeTrend, setSceneTheme, type SceneObject } from './objects';
 import { degrade, judge, measure } from '../quality/metrics';
 import { REAL_LIMITS, fundusFromFile, fundusFromUrl, type RealFundus } from '../quality/real';
 import { ui } from '../../content/site';
@@ -528,6 +528,14 @@ export function mount(canvas: HTMLCanvasElement): void {
       raf = requestAnimationFrame(frame);
     }
   }
+
+  // Light or dark page: recolour the objects and draw once more.
+  const isLight = (): boolean => document.documentElement.dataset.theme === 'light';
+  setSceneTheme(isLight());
+  document.addEventListener('themechange', () => {
+    setSceneTheme(isLight());
+    wake();
+  });
 
   /* ---------- drop a retina photo on the eye ---------- */
   const G = ui.retinaGate;

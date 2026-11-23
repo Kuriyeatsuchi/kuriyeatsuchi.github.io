@@ -10,6 +10,7 @@
    *   dim dots, about one in eight a soft blue, and a handful of small four-point sparkles.
    * - Each star has its own speed and starting point, so it slowly brightens and dims on its
    *   own rhythm. Everything stays dim so text and the 3D objects stay the focus.
+   * - On the light page the same stars are drawn as faint dark specks and deep blue.
    * - The canvas redraws about 20 times a second (twinkling is slow), stops while the tab is
    *   hidden, and with reduced motion it is drawn once and stays still.
    */
@@ -47,10 +48,14 @@
 
     const draw = (t: number): void => {
       ctx.clearRect(0, 0, w, h);
+      const light = document.documentElement.dataset.theme === 'light';
+      const ink = light ? '22,24,29' : '232,230,225';
+      const blue = light ? '40,92,140' : '126,184,224';
+      const k = light ? 0.6 : 1; // dark specks read stronger on a light page
       for (const s of stars) {
         const twinkle = reduced ? 0.8 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
-        const a = s.base * twinkle;
-        ctx.fillStyle = s.blue ? `rgba(126,184,224,${a})` : `rgba(232,230,225,${a})`;
+        const a = s.base * twinkle * k;
+        ctx.fillStyle = `rgba(${s.blue ? blue : ink},${a})`;
         if (s.sparkle) {
           // A small four-point star: two thin crossing bars and a brighter centre.
           const r = s.size * (0.8 + 0.2 * twinkle);
@@ -92,6 +97,7 @@
         draw(performance.now() / 1000);
       }, 150);
     });
+    document.addEventListener('themechange', () => draw(performance.now() / 1000));
     draw(0);
     start();
   }

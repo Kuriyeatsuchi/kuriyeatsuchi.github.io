@@ -293,6 +293,9 @@ export const ui = {
     library: 'Library',
     achievements: 'Achievements',
     contact: 'Contact',
+    // PROPOSED (labels for the light/dark switch, read by screen readers)
+    toLight: 'Switch to light mode',
+    toDark: 'Switch to dark mode',
   },
   hero: {
     viewWork: 'View work',

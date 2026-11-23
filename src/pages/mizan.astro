@@ -174,7 +174,9 @@ const lab = ui.mizanLab;
       }
     };
 
+    let lastRun: [boolean[], boolean[]] = [[], []];
     const show = (plain: boolean[], corr: boolean[]): void => {
+      lastRun = [plain, corr];
       const n = plain.length;
       const a = plain.filter(Boolean).length;
       const b = corr.filter(Boolean).length;
@@ -197,6 +199,12 @@ const lab = ui.mizanLab;
       show(plain, corr);
     });
     q<HTMLButtonElement>('[data-new]').addEventListener('click', example);
+    // Light/dark switch: redraw with the new colours.
+    document.addEventListener('themechange', () => {
+      drawChart();
+      drawGrid(q<HTMLCanvasElement>('[data-grid-plain]'), lastRun[0]);
+      drawGrid(q<HTMLCanvasElement>('[data-grid-corr]'), lastRun[1]);
+    });
     phiInput.addEventListener('input', () => {
       phi = parseFloat(phiInput.value);
       phiOut.textContent = phi.toFixed(2);

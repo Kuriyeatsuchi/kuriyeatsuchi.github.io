@@ -9,6 +9,11 @@
   --glow: #5cc8ff; /* reserved for the 3D scene (v2); not used in HTML */
   --border: #252a35; /* neutral hairline, non-text */
   --border-strong: #3d4350; /* outlines on secondary buttons, non-text */
+  --shade-2: #b5b3ad; /* second and third tones in small charts, non-text */
+  --shade-3: #86847f;
+  --eye-sclera: #6f7076; /* the white of the 2D eye (404) */
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(5, 6, 9, 0.94); /* behind the Library viewer */
 
   /* Type */
   --font-heading: 'Instrument Sans', 'Instrument Sans Fallback', system-ui, sans-serif;
@@ -42,4 +47,23 @@
   --radius: 3px;
 
   color-scheme: dark;
+}
+
+/* Light mode: same layout and fonts, warm off-white page with near-black ink. The accent is a
+   deeper shade of the same amber so links keep 4.5:1 contrast on the light background. */
+:root[data-theme='light'] {
+  --bg: #f4f2ed; /* warm off-white */
+  --surface: #eae7e0;
+  --text: #16181d; /* 15.9:1 on --bg */
+  --text-dim: #5c5a52; /* 6.2:1 on --bg, 5.6:1 on --surface */
+  --accent: #a84c17; /* deeper fundus amber: 5.1:1 on --bg, 4.6:1 on --surface */
+  --border: #dcd8cf;
+  --border-strong: #bdb8ad;
+  --shade-2: #6e6c65;
+  --shade-3: #a19e96;
+  --eye-sclera: #a3a19b;
+  --shadow: rgba(40, 36, 28, 0.16);
+  --scrim: rgba(244, 242, 237, 0.96);
+
+  color-scheme: light;
 }

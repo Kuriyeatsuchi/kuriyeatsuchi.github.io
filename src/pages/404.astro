@@ -58,8 +58,8 @@ const fibres = Array.from({ length: 150 }, () => {
               <stop offset="1" stop-color="#5E5E5B"></stop>
             </radialGradient>
           </defs>
-          <circle r={R} fill="#0B0D12"></circle>
-          <g fill="#6F7076">
+          <circle r={R} style="fill: var(--bg)"></circle>
+          <g style="fill: var(--eye-sclera)">
             {dots.map((d) => <rect x={(d.x - 1).toFixed(1)} y={(d.y - 1).toFixed(1)} width="2" height="2"></rect>)}
           </g>
           <g data-iris>
