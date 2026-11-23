@@ -35,9 +35,23 @@ import { identity, proofChips, ui } from '../content/site';
           )
         }
 
-        <p class="hero__drop">
-          <span class="hero__drop-text">{ui.eyeGate.hint} </span><a href="/retina#gate">{ui.eyeGate.hintLink}</a>
-        </p>
+        <div class="hero__samples" data-eye-samples>
+          <p class="hero__drop">
+            <span class="hero__drop-mouse">{ui.eyeGate.hint}</span>
+            <span class="hero__drop-touch">{ui.eyeGate.tapHint}</span>
+          </p>
+          <ul class="hero__thumbs" aria-label={ui.eyeGate.samplesLabel}>
+            {
+              (['clear', 'blurry', 'dark'] as const).map((key) => (
+                <li>
+                  <a class="hero__thumb" href="/retina#gate" draggable="true" data-eye-sample={`/retina/samples/${key}.webp`}>
+                    <img src={`/retina/samples/${key}-thumb.webp`} width="56" height="56" alt={ui.eyeGate.sampleAlt[key]} draggable="false" />
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
 
         <div class="hero__actions">
           <a id="view-work" class="btn btn-primary" href="#projects">{ui.hero.viewWork}</a>
@@ -60,6 +74,26 @@ import { identity, proofChips, ui } from '../content/site';
     </div>
   </div>
 </section>
+
+<script>
+  // Example photos: drag onto the eye, or tap/click to send one in. Without the 3D scene
+  // (no WebGL, or it hasn't loaded yet) the link opens the quality gate on /retina instead.
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-eye-sample]')) {
+    const url = a.dataset.eyeSample ?? '';
+    a.addEventListener('dragstart', (e) => {
+      if (!e.dataTransfer) return;
+      e.dataTransfer.setData('text/x-eye-sample', url);
+      e.dataTransfer.effectAllowed = 'copy';
+      const img = a.querySelector('img');
+      if (img) e.dataTransfer.setDragImage(img, 28, 28);
+    });
+    a.addEventListener('click', (e) => {
+      if (!('eyeReady' in document.documentElement.dataset)) return;
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('eye:check', { detail: { url, from: a.querySelector('img') } }));
+    });
+  }
+</script>
 
 <style>
   .hero {
@@ -175,21 +209,58 @@ import { identity, proofChips, ui } from '../content/site';
     white-space: nowrap;
   }
 
+  .hero__samples {
+    margin-top: var(--space-6);
+  }
+
   .hero__drop {
-    margin-top: var(--space-5);
     color: var(--text-dim);
     font-size: var(--step--1);
   }
 
-  .hero__drop a {
-    font-weight: 600;
+  .hero__drop-touch {
+    display: none;
   }
 
-  /* Touch screens can't drag a file onto the eye; keep only the link. */
+  /* Touch screens can't drag onto the eye: they tap instead. */
   @media (hover: none) {
-    .hero__drop-text {
+    .hero__drop-mouse {
       display: none;
     }
+
+    .hero__drop-touch {
+      display: inline;
+    }
+  }
+
+  .hero__thumbs {
+    display: flex;
+    gap: var(--space-3);
+    list-style: none;
+    margin-top: var(--space-3);
+  }
+
+  .hero__thumb {
+    display: block;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    cursor: grab;
+    transition: border-color 150ms ease, transform 200ms ease;
+  }
+
+  .hero__thumb:hover {
+    border-color: var(--text);
+    transform: translateY(-2px);
+  }
+
+  .hero__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .hero__actions {

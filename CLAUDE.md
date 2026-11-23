@@ -130,10 +130,11 @@ inside the canvas.** Objects are points and lines built in code (no models).
    10–15 s (Mizan: trend lines / globe / 5%-false-alarm grid; Streak: bars / stacked $81M-$16M-$23M
    column / users-vs-bookings lines). The eye never changes.
 7. **Idle:** after a few seconds without input, objects drift and turn very slowly.
-   The eye blinks on clicks and now and then, squints while the pointer is over text, and looks
-   at whichever project is hovered.
-   **Drop a retina photo on the eye** to run the stage-1 quality gate in the browser; a panel
-   beside the eye shows the verdict. Nothing is uploaded.
+   The eye squints while the pointer is over text and looks at whichever project is hovered
+   (no blinking: Yousef removed it).
+   **Give the eye a retina photo** to run the stage-1 quality gate in the browser: the three
+   example photos sit beside it in the hero (drag one in, or tap it and it flies in), or drop
+   your own. A panel beside the eye shows the verdict. Nothing is uploaded.
 8. Later (not started): fly through the pupil onto the retina, Retina → Graph → Network.
 
 ## Performance and accessibility budgets

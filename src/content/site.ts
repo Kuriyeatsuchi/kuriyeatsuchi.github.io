@@ -418,8 +418,10 @@ export const ui = {
     noscript: 'Turn on JavaScript to try the quality gate.',
   },
   eyeGate: {
-    hint: 'Drop a retina photo on the eye to check its quality.',
-    hintLink: 'Try the examples',
+    hint: 'Drag a retina photo onto the eye to check its quality.',
+    tapHint: 'Tap a retina photo to give it to the eye.',
+    samplesLabel: 'Example retina photos',
+    sampleAlt: { clear: 'Clear retina photo', blurry: 'Out-of-focus retina photo', dark: 'Too-dark retina photo' },
     panelLabel: 'Quality check',
     more: 'Open the full quality gate',
   },
