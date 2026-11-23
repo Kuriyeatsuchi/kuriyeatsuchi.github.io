@@ -196,7 +196,7 @@ export const hcgcc: Hcgcc = {
     { value: '+$120M', label: 'a year by FY2029 (modeled)' },
     { value: '$71M', label: '3-year NPV (modeled)' },
   ],
-  myRole: null, // TODO(content): my role (rewrite so the team gets credit)
+  myRole: 'I built the whole deck: the analysis, the solution and every slide.', // PROPOSED (from Yousef's own description of his role)
   deckHref: '/hcgcc-deck.pdf',
 };
 
