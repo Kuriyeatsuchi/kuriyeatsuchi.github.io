@@ -177,7 +177,7 @@ strong {
 
 .container {
   width: 100%;
-  max-width: calc(var(--measure) + 2 * var(--gutter));
+  max-width: calc(var(--wide) + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
@@ -327,4 +327,116 @@ strong {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Wide pages (redesign)                                               */
+/* The page is up to --wide; text blocks stay at the --measure reading */
+/* width, left-aligned. Elements marked .wide use the full width.      */
+/* ------------------------------------------------------------------ */
+
+.container > :not(.wide) {
+  max-width: var(--measure);
+}
+
+.small {
+  font-size: var(--step--1);
+}
+
+.intro {
+  margin-top: var(--space-4);
+  color: var(--text-dim);
+}
+
+.page-head {
+  padding-block: clamp(40px, 8vw, 96px) var(--section-space);
+}
+
+.page-title {
+  font-size: var(--step-4);
+  letter-spacing: -0.02em;
+}
+
+.page-bullets {
+  margin-top: var(--space-6);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--space-6);
+  font-weight: 600;
+}
+
+/* Secondary button: outline only. "View work" stays the only filled button. */
+.btn-line,
+.hero-eye__btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-5);
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.btn-line:hover,
+.hero-eye__btn:hover,
+.btn-line[aria-pressed='true'] {
+  border-color: var(--text);
+}
+
+.btn-line[aria-pressed='true'] {
+  background: var(--surface);
+}
+
+.row-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+input[type='range'] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--text);
+}
+
+/* Hero 3D island (src/components/HeroEye.tsx) */
+.hero-eye {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.hero-eye__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.hero-eye__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-3);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hero-eye__hint {
+  color: var(--text-dim);
+  font-size: var(--step--1);
+  max-width: 34ch;
 }

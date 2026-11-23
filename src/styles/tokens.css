@@ -8,6 +8,7 @@
   --accent: #f08a4b; /* fundus amber, the only accent: 7.8:1 on --bg */
   --glow: #5cc8ff; /* reserved for the 3D scene (v2); not used in HTML */
   --border: #252a35; /* neutral hairline, non-text */
+  --border-strong: #3d4350; /* outlines on secondary buttons, non-text */
 
   /* Type */
   --font-heading: 'Instrument Sans', 'Instrument Sans Fallback', system-ui, sans-serif;
@@ -22,7 +23,8 @@
   --step-4: clamp(2.75rem, 9vw, 4.25rem);
 
   /* Layout */
-  --measure: 720px;
+  --measure: 720px; /* reading width for text */
+  --wide: 1200px; /* page width: hero, project list, demos */
   --gutter: clamp(16px, 5vw, 32px);
   --section-space: clamp(64px, 10vw, 112px);
 
