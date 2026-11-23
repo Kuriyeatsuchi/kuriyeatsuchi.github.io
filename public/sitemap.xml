@@ -3,5 +3,13 @@
   <url>
     <loc>https://yousefalsharif.me/</loc>
   </url>
-  <!-- Add https://yousefalsharif.me/retina when the case study ships (v1.x). -->
+  <url>
+    <loc>https://yousefalsharif.me/mizan</loc>
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/retina</loc>
+  </url>
+  <url>
+    <loc>https://yousefalsharif.me/hcgcc</loc>
+  </url>
 </urlset>
