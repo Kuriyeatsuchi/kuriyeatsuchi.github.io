@@ -1,14 +1,9 @@
 ---
-// Minimal page so the scaffold builds. Replaced by the real layout and sections in later steps.
+import Base from '../layouts/Base.astro';
+import { identity, ui } from '../content/site';
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Yousef Alsharif</title>
-  </head>
-  <body>
-    <h1>Yousef Alsharif</h1>
-  </body>
-</html>
+<Base title={ui.meta.title} description={ui.meta.description} canonicalPath="/">
+  <div class="container">
+    <h1>{identity.name}</h1>
+  </div>
+</Base>

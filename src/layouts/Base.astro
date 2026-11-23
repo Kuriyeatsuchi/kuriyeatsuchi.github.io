@@ -1,0 +1,141 @@
+---
+import '../styles/global.css';
+import { identity, ui } from '../content/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path for the canonical URL, e.g. "/". Omit for pages that shouldn't be indexed. */
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+
+const { title, description, canonicalPath, noindex = false } = Astro.props;
+const canonical = canonicalPath && Astro.site ? new URL(canonicalPath, Astro.site).href : null;
+const goatcounter = identity.goatcounterCode;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#0B0D12" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={identity.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {/* TODO(content): og:image /og.png (1200×630 render of the eye) arrives in v2 */}
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="preload" href="/fonts/GeneralSans-Semibold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin />
+
+    {
+      goatcounter && (
+        <script
+          is:inline
+          data-goatcounter={`https://${goatcounter}.goatcounter.com/count`}
+          async
+          src="https://gc.zgo.at/count.js"
+        />
+      )
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{ui.skipLink}</a>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="site-header__name" href="/">{identity.name}</a>
+        <nav aria-label="Main">
+          <ul class="site-nav">
+            <li><a href="/#mizan">{ui.nav.projects}</a></li>
+            <li><a href="/#achievements">{ui.nav.achievements}</a></li>
+            <li><a href="/#contact">{ui.nav.contact}</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>{ui.footer}</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: var(--space-4);
+    top: var(--space-4);
+    z-index: 10;
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+    border-radius: var(--radius);
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  .site-header__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+    padding-block: var(--space-5);
+  }
+
+  .site-header__name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .site-nav {
+    display: flex;
+    gap: var(--space-5);
+    list-style: none;
+    font-size: var(--step--1);
+  }
+
+  .site-nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    display: inline-block;
+    padding-block: var(--space-2);
+  }
+
+  .site-nav a:hover {
+    color: var(--text);
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding-block: var(--space-6);
+    color: var(--text-dim);
+    font-size: var(--step--1);
+  }
+</style>
