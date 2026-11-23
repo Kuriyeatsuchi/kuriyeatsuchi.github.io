@@ -15,13 +15,20 @@
  *   Scrolling sends every object back to its home position and rotation.
  * - Over text, an object fades so the text reads as if the object were behind it.
  * - Idle: after a few seconds without input, objects drift and turn very slowly.
- * - The eye turns toward the cursor; hovering a project row triggers its object's reaction.
+ * - The eye turns toward the cursor, or toward the project you hover. It blinks when you
+ *   click (and now and then on its own), and squints while the pointer is over text.
+ * - Drop a retina photo on the eye and it runs the stage-1 quality gate on it, right in the
+ *   browser (src/lib/quality/real.ts); a small panel beside the eye shows the verdict.
+ *   The pupil widens for a gradeable photo and narrows for a bad one. Nothing is uploaded.
  * - Below 768px only the eye is shown. Reduced motion: no drifting, turning or glitching;
  *   objects still follow scrolling and can be dragged. Drawing stops when the tab is hidden.
  */
 
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { makeBars, makeEye, makeTrend, type SceneObject } from './objects';
+import { degrade, judge, measure } from '../quality/metrics';
+import { REAL_LIMITS, fundusFromFile } from '../quality/real';
+import { ui } from '../../content/site';
 
 type Key = 'mizan' | 'retina' | 'hcgcc';
 const KEYS: readonly Key[] = ['mizan', 'retina', 'hcgcc'];
@@ -233,6 +240,19 @@ export function mount(canvas: HTMLCanvasElement): void {
 
   let pointerX = -1;
   let pointerY = -1;
+  let nextBlink = 3 + Math.random() * 4;
+  let dragMoved = false;
+  window.addEventListener(
+    'click',
+    () => {
+      if (!dragMoved) {
+        eye.blink();
+        wake();
+      }
+      dragMoved = false;
+    },
+    { capture: true },
+  );
   window.addEventListener(
     'pointermove',
     (e) => {
@@ -246,6 +266,7 @@ export function mount(canvas: HTMLCanvasElement): void {
         const dy = e.clientY - drag.y;
         drag.x = e.clientX;
         drag.y = e.clientY;
+        if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
         if (drag.mode === 'move') {
           drag.body.off.x += dx;
           drag.body.off.y += dy;
@@ -255,6 +276,8 @@ export function mount(canvas: HTMLCanvasElement): void {
         }
       } else if (e.pointerType === 'mouse') {
         const over = e.target instanceof Element && e.target.closest(INTERACTIVE);
+        // Squint at text the visitor is pointing at (reading).
+        eye.squint(!over && e.target instanceof Element && holdsText(e.target) ? 1 : 0);
         const h1 = over ? null : hit(e.clientX, e.clientY);
         document.documentElement.style.cursor = h1 ? (h1.d < h1.body.radius * 0.6 ? 'move' : 'grab') : '';
       }
@@ -402,10 +425,19 @@ export function mount(canvas: HTMLCanvasElement): void {
       b.obj.setOpacity(b.opacity * flicker);
 
       if (b.key === 'retina') {
-        const lx = pointerX < 0 ? 0 : clamp((pointerX - x) / Math.max(200, w * 0.4), -0.7, 0.7);
-        const ly = pointerY < 0 ? 0 : clamp((pointerY - y) / Math.max(200, h * 0.5), -0.5, 0.5);
+        // Look at the hovered project's object, else at the cursor.
+        const other = hovered && hovered !== 'retina' ? bodies.find((o) => o.key === hovered && o.visible) : undefined;
+        const tx = other ? other.x : hovered === 'retina' ? x : pointerX;
+        const ty = other ? other.y : hovered === 'retina' ? y : pointerY;
+        const lx = tx < 0 ? 0 : clamp((tx - x) / Math.max(200, w * 0.4), -0.7, 0.7);
+        const ly = ty < 0 ? 0 : clamp((ty - y) / Math.max(200, h * 0.5), -0.5, 0.5);
         eye.look(lx, ly);
+        placePanel(x, y, b.radius);
       }
+    }
+    if (!reduced && clock > nextBlink) {
+      eye.blink();
+      nextBlink = clock + 3 + Math.random() * 4;
     }
     if (returning && !busy) returning = false;
     return anyVisible && (busy || !reduced);
@@ -442,6 +474,97 @@ export function mount(canvas: HTMLCanvasElement): void {
       raf = requestAnimationFrame(frame);
     }
   }
+
+  /* ---------- drop a retina photo on the eye ---------- */
+  const G = ui.retinaGate;
+  const panel = document.querySelector<HTMLElement>('[data-eye-result]');
+  const eyeBody = bodies.find((b) => b.key === 'retina') as Body;
+  const overEye = (x: number, y: number): boolean => eyeBody.visible && Math.hypot(x - eyeBody.x, y - eyeBody.y) < eyeBody.radius * 1.25;
+  const hasFiles = (e: DragEvent): boolean => !!e.dataTransfer && Array.from(e.dataTransfer.types).includes('Files');
+
+  function placePanel(x: number, y: number, r: number): void {
+    if (!panel || panel.hidden) return;
+    const pw = panel.offsetWidth;
+    const ph = panel.offsetHeight;
+    const left = x + r + 20 + pw < w - 12 ? x + r + 20 : Math.max(12, x - r - 20 - pw);
+    panel.style.left = `${left}px`;
+    panel.style.top = `${clamp(y - ph / 2, 72, Math.max(72, h - ph - 12))}px`;
+  }
+
+  const showResult = async (file: File): Promise<void> => {
+    if (!panel) return;
+    const q = <T extends Element>(s: string): T => panel.querySelector<T>(s) as T;
+    const verdict = q<HTMLElement>('[data-eye-verdict]');
+    const warn = q<HTMLElement>('[data-eye-warn]');
+    const rows = q<HTMLElement>('[data-eye-rows]');
+    const result = await fundusFromFile(file).catch(() => null);
+    panel.hidden = false;
+    if (!result) {
+      verdict.textContent = G.unreadable;
+      rows.replaceChildren();
+      warn.hidden = true;
+      eye.pupilFor(0.6, 1.5);
+      return;
+    }
+    const f = result.fundus;
+    const px = degrade(f, { exposure: 0, contrast: 1, blur: 0 });
+    const c = q<HTMLCanvasElement>('[data-eye-canvas]').getContext('2d');
+    if (c) {
+      const img = c.createImageData(f.size, f.size);
+      img.data.set(px);
+      c.putImageData(img, 0, 0);
+    }
+    const m = measure(px, f);
+    const problems = judge(m, REAL_LIMITS);
+    verdict.textContent = problems.length ? `${G.verdictBad}: ${problems.map((p) => G.reasons[p]).join(', ')}` : G.verdictOk;
+    const L = REAL_LIMITS;
+    rows.replaceChildren(
+      ...[
+        [G.brightness, m.brightness.toFixed(0), m.brightness >= L.brightness[0] && m.brightness <= L.brightness[1]],
+        [G.contrastCheck, m.contrast.toFixed(2), m.contrast >= L.contrast],
+        [G.sharpness, m.sharpness.toFixed(2), m.sharpness >= L.sharpness],
+      ].map(([name, value, ok]) => {
+        const li = document.createElement('li');
+        li.textContent = `${name} ${value} · ${ok ? G.pass : G.fail}`;
+        if (!ok) li.className = 'fail';
+        return li;
+      }),
+    );
+    warn.hidden = result.looksLikeFundus;
+    if (problems.length) {
+      eye.pupilFor(0.55, 1.6);
+      eye.squint(1);
+      setTimeout(() => eye.squint(0), 700);
+    } else {
+      eye.pupilFor(1.9, 1.4);
+      eye.blink();
+    }
+    wake();
+  };
+
+  window.addEventListener('dragover', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); // keep the browser from opening the file
+    pointerX = e.clientX;
+    pointerY = e.clientY;
+    lastInput = clock;
+    const on = overEye(e.clientX, e.clientY);
+    if (e.dataTransfer) e.dataTransfer.dropEffect = on ? 'copy' : 'none';
+    eye.pupilFor(on ? 1.8 : 1.3, 0.25);
+    wake();
+  });
+  window.addEventListener('drop', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    const file = e.dataTransfer?.files[0];
+    if (file && overEye(e.clientX, e.clientY)) void showResult(file);
+  });
+  panel?.querySelector('[data-eye-close]')?.addEventListener('click', () => {
+    if (panel) panel.hidden = true;
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel && !panel.hidden) panel.hidden = true;
+  });
 
   window.addEventListener('resize', () => {
     resize();

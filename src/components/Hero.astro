@@ -35,6 +35,10 @@ import { identity, proofChips, ui } from '../content/site';
           )
         }
 
+        <p class="hero__drop">
+          <span class="hero__drop-text">{ui.eyeGate.hint} </span><a href="/retina#gate">{ui.eyeGate.hintLink}</a>
+        </p>
+
         <div class="hero__actions">
           <a id="view-work" class="btn btn-primary" href="#projects">{ui.hero.viewWork}</a>
           {
@@ -169,6 +173,23 @@ import { identity, proofChips, ui } from '../content/site';
   /* Keep each item whole when the line wraps. */
   .hero__item {
     white-space: nowrap;
+  }
+
+  .hero__drop {
+    margin-top: var(--space-5);
+    color: var(--text-dim);
+    font-size: var(--step--1);
+  }
+
+  .hero__drop a {
+    font-weight: 600;
+  }
+
+  /* Touch screens can't drag a file onto the eye; keep only the link. */
+  @media (hover: none) {
+    .hero__drop-text {
+      display: none;
+    }
   }
 
   .hero__actions {

@@ -1,8 +1,22 @@
 ---
 // The fixed WebGL canvas behind the home page (src/lib/scene/projectScene.ts).
 // three.js loads only when the browser is idle, after the text has rendered.
+import { ui } from '../content/site';
 ---
 <canvas class="project-scene" data-project-scene aria-hidden="true"></canvas>
+
+<!-- Filled in when a photo is dropped on the eye. -->
+<section class="eye-result" data-eye-result hidden aria-label={ui.eyeGate.panelLabel}>
+  <button type="button" class="eye-result__close" data-eye-close aria-label={ui.library.close}>
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+  </button>
+  <canvas width="320" height="320" data-eye-canvas aria-hidden="true"></canvas>
+  <p class="eye-result__verdict" data-eye-verdict aria-live="polite"></p>
+  <ul class="eye-result__rows" data-eye-rows></ul>
+  <p class="eye-result__warn" data-eye-warn hidden>{ui.retinaGate.notFundus}</p>
+  <p class="eye-result__private">{ui.retinaGate.privacy}</p>
+  <a class="eye-result__more" href="/retina#gate">{ui.eyeGate.more}</a>
+</section>
 
 <script>
   const canvas = document.querySelector<HTMLCanvasElement>('[data-project-scene]');
@@ -27,5 +41,79 @@
 
   .project-scene:global(.is-ready) {
     opacity: 1;
+  }
+
+  .eye-result {
+    position: fixed;
+    z-index: 3;
+    width: 260px;
+    padding: var(--space-4);
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: var(--step--1);
+  }
+
+  .eye-result[hidden] {
+    display: none;
+  }
+
+  .eye-result canvas {
+    display: block;
+    width: 120px;
+    height: 120px;
+    background: #000;
+  }
+
+  .eye-result__verdict {
+    margin-top: var(--space-3);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--step-1);
+    line-height: 1.25;
+  }
+
+  .eye-result__rows {
+    list-style: none;
+    margin-top: var(--space-2);
+    color: var(--text-dim);
+  }
+
+  .eye-result__rows :global(.fail) {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .eye-result__warn {
+    margin-top: var(--space-2);
+  }
+
+  .eye-result__private {
+    margin-top: var(--space-2);
+    color: var(--text-dim);
+  }
+
+  .eye-result__more {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-weight: 600;
+  }
+
+  .eye-result__close {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: 0;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .eye-result__close:hover {
+    color: var(--text);
   }
 </style>
