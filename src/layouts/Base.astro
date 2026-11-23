@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { identity, ui } from '../content/site';
+import { hcgcc, identity, mizan, projectPages, retina, ui } from '../content/site';
 
 interface Props {
   title: string;
@@ -11,6 +11,27 @@ interface Props {
 }
 
 const { title, description, canonicalPath, noindex = false } = Astro.props;
+
+// Projects menu: each project's page plus its own links (only the ones that exist).
+type MenuLink = { label: string; href: string };
+const extra: Record<string, (MenuLink | null)[]> = {
+  mizan: [
+    mizan.liveAppUrl ? { label: ui.mizan.liveApp, href: mizan.liveAppUrl } : null,
+    mizan.codeUrl ? { label: ui.mizan.code, href: mizan.codeUrl } : null,
+  ],
+  retina: [
+    { label: ui.retinaGate.heading, href: '/retina#gate' },
+    retina.repoUrl ? { label: ui.retina.code, href: retina.repoUrl } : null,
+  ],
+  hcgcc: [
+    hcgcc.deckHref ? { label: ui.hcgcc.openDeck, href: hcgcc.deckHref } : null,
+    { label: ui.hcgccBuilder.heading, href: '/hcgcc#build-title' },
+  ],
+};
+const menu = projectPages.map((p) => ({
+  ...p,
+  links: (extra[p.slug] ?? []).filter((l): l is MenuLink => l !== null),
+}));
 const canonical = canonicalPath && Astro.site ? new URL(canonicalPath, Astro.site).href : null;
 const goatcounter = identity.goatcounterCode;
 ---
@@ -60,7 +81,32 @@ const goatcounter = identity.goatcounterCode;
         </a>
         <nav aria-label="Main">
           <ul class="site-nav">
-            <li><a href="/#projects">{ui.nav.projects}</a></li>
+            <li class="nav-projects" data-menu>
+              <a href="/#projects" aria-haspopup="true" aria-expanded="false" aria-controls="projects-menu" data-menu-trigger>
+                {ui.nav.projects}
+                <svg aria-hidden="true" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 3.5 5 6.5 8 3.5"></path></svg>
+              </a>
+              <div class="projects-menu" id="projects-menu" data-menu-panel>
+                <ul class="projects-menu__grid">
+                  {
+                    menu.map((p) => (
+                      <li class="projects-menu__item">
+                        <a class="projects-menu__title" href={`/${p.slug}`}>{p.title}</a>
+                        <p class="projects-menu__meta">{p.meta}</p>
+                        <ul class="projects-menu__links">
+                          {p.links.map((l) => (
+                            <li>
+                              <a href={l.href}>{l.label}</a>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))
+                  }
+                </ul>
+                <a class="projects-menu__all" href="/#projects">{ui.pages.allProjects}</a>
+              </div>
+            </li>
             <li><a href="/#achievements">{ui.nav.achievements}</a></li>
             <li><a href="/library">{ui.nav.library}</a></li>
             <li><a href="/#contact">{ui.nav.contact}</a></li>
@@ -80,6 +126,49 @@ const goatcounter = identity.goatcounterCode;
     </footer>
   </body>
 </html>
+
+<script>
+  // Projects menu: opens on hover (with a short close delay), on keyboard focus, and on
+  // tap for touch screens (the first tap opens it, the second follows the link). Esc closes.
+  const item = document.querySelector<HTMLElement>('[data-menu]');
+  const trigger = item?.querySelector<HTMLAnchorElement>('[data-menu-trigger]');
+  if (item && trigger) {
+    let timer = 0;
+    const set = (open: boolean): void => {
+      item.toggleAttribute('data-open', open);
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    const isOpen = (): boolean => item.hasAttribute('data-open');
+    item.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(timer);
+      set(true);
+    });
+    item.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      timer = window.setTimeout(() => set(false), 180);
+    });
+    item.addEventListener('focusin', () => set(true));
+    item.addEventListener('focusout', (e) => {
+      if (!item.contains(e.relatedTarget as Node | null)) set(false);
+    });
+    trigger.addEventListener('click', (e) => {
+      if (window.matchMedia('(hover: none)').matches && !isOpen()) {
+        e.preventDefault();
+        set(true);
+      }
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (isOpen() && !item.contains(e.target as Node)) set(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen()) {
+        set(false);
+        trigger.focus();
+      }
+    });
+  }
+</script>
 
 <style>
   .skip-link {
@@ -143,6 +232,142 @@ const goatcounter = identity.goatcounterCode;
 
   .site-nav a:hover {
     color: var(--text);
+  }
+
+  /* ---------- Projects menu ---------- */
+  .nav-projects {
+    position: relative;
+  }
+
+  .nav-projects > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-projects > a svg {
+    transition: transform 200ms ease;
+  }
+
+  .nav-projects[data-open] > a {
+    color: var(--text);
+  }
+
+  .nav-projects[data-open] > a svg {
+    transform: rotate(180deg);
+  }
+
+  .projects-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: min(760px, calc(100vw - 2 * var(--gutter)));
+    padding-top: var(--space-3); /* a bridge, so moving down to the menu keeps it open */
+    transform: translate(-50%, -6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 160ms ease, transform 200ms ease, visibility 0s linear 200ms;
+  }
+
+  @media (max-width: 760px) {
+    .projects-menu {
+      position: fixed;
+      top: 64px;
+      left: var(--gutter);
+      right: var(--gutter);
+      width: auto;
+      transform: translateY(-6px);
+    }
+  }
+
+  .nav-projects[data-open] .projects-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+    transition: opacity 160ms ease, transform 200ms ease, visibility 0s;
+  }
+
+  @media (max-width: 760px) {
+    .nav-projects[data-open] .projects-menu {
+      transform: none;
+    }
+  }
+
+  .projects-menu__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    list-style: none;
+    padding: var(--space-5);
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  @media (max-width: 760px) {
+    .projects-menu__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .projects-menu__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .site-nav .projects-menu__title {
+    padding: 0;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--step-0);
+    line-height: 1.3;
+  }
+
+  .site-nav .projects-menu__title:hover {
+    color: var(--accent);
+  }
+
+  .projects-menu__meta {
+    color: var(--text-dim);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .projects-menu__links {
+    list-style: none;
+    margin-top: var(--space-2);
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .site-nav .projects-menu__links a,
+  .site-nav .projects-menu__all {
+    padding: 0;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .site-nav .projects-menu__links a:hover,
+  .site-nav .projects-menu__all:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .site-nav .projects-menu__all {
+    display: inline-block;
+    margin: var(--space-3) 0 0 var(--space-2);
+    font-size: var(--step--1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .projects-menu,
+    .nav-projects[data-open] .projects-menu {
+      transition: none;
+    }
   }
 
   .site-footer {
