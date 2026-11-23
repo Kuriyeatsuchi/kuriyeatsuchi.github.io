@@ -74,7 +74,12 @@ const { identity, proofChips, ui } = content(lang);
         <span class="slot slot--mizan" data-slot="hero-mizan"></span>
         <span class="slot slot--retina" data-slot="hero-retina"></span>
         <span class="slot slot--hcgcc" data-slot="hero-hcgcc"></span>
+        <!-- Phones: one shape in the middle, the other two in the top corners (tap to swap). -->
+        <span class="mslot mslot--main" data-mslot="main"></span>
+        <span class="mslot mslot--left" data-mslot="left"></span>
+        <span class="mslot mslot--right" data-mslot="right"></span>
       </div>
+      <p class="hero__shapes-hint">{ui.eyeGate.shapesHint}</p>
     </div>
   </div>
 </section>
@@ -144,6 +149,57 @@ const { identity, proofChips, ui } = content(lang);
   .slot--mizan,
   .slot--hcgcc {
     display: none;
+  }
+
+  .mslot,
+  .hero__shapes-hint {
+    display: none;
+  }
+
+  /* Phones: the eye in the middle and the other two shapes in the top corners. */
+  @media (max-width: 767px) {
+    .hero__slots {
+      height: 420px;
+    }
+
+    .slot--retina {
+      display: none;
+    }
+
+    .mslot {
+      display: block;
+      position: absolute;
+      aspect-ratio: 1;
+    }
+
+    .mslot--main {
+      left: 50%;
+      top: 60%;
+      width: min(290px, 78%);
+      transform: translate(-50%, -50%);
+    }
+
+    .mslot--left,
+    .mslot--right {
+      top: 0;
+      width: 26%;
+    }
+
+    .mslot--left {
+      inset-inline-start: 0;
+    }
+
+    .mslot--right {
+      inset-inline-end: 0;
+    }
+
+    .hero__shapes-hint {
+      display: block;
+      margin-top: calc(-1 * var(--space-4));
+      color: var(--text-dim);
+      font-size: var(--step--1);
+      text-align: center;
+    }
   }
 
   @media (min-width: 768px) {

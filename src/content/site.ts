@@ -436,6 +436,9 @@ export const ui = {
     samplesLabel: 'Example retina photos',
     sampleAlt: { clear: 'Clear retina photo', blurry: 'Out-of-focus retina photo', dark: 'Too-dark retina photo' },
     panelLabel: 'Quality check',
+    // PROPOSED (phones: the shapes under the hero buttons)
+    shapesHint: 'Tap a corner shape to bring it to the middle. Tap the middle one to play with it.',
+    done: 'Done',
     more: 'Open the full quality gate',
   },
   library: {

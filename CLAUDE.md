@@ -167,7 +167,12 @@ behind every page (`src/components/StarField.astro`, 2D canvas). It must stay di
 - LCP < 2.5s, CLS < 0.05 on Lighthouse mobile. Accessibility ≥ 95, SEO = 100.
 - 3D JS ≤ 300 KB gzipped.
 - Pixel ratio capped at 1.5. Pause the render loop when no object is on screen or the tab is hidden.
-- **Mobile (<768px):** the eye only; below 960px the objects stay in the hero.
+- **Mobile (<768px)** (Yousef's design, 2026-11-24): under the hero buttons the eye sits in the
+  middle and Mizan and Beyond the Streak sit small in the top corners. Tap a corner shape to swap
+  it into the middle. Tap the middle shape for focus mode: the page fades back, dragging spins
+  the shape (the eye too, here only, while it keeps watching the finger), tapping it plays its
+  effect. Ways out: tap elsewhere, the Done button, or scroll off the shape. Shapes never block
+  scrolling outside focus mode, and stay in the hero (no follow mode).
 - **`prefers-reduced-motion`:** nothing turns on its own; objects only follow scrolling.
 - Any model compressed (meshopt/Draco); textures KTX2 or WebP.
 - Full keyboard navigation and visible focus states. Meaningful `alt` text.

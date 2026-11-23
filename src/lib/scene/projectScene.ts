@@ -24,7 +24,14 @@
  *   Three example photos sit in the hero: drag one onto the eye, or tap it and it flies in.
  *   A visitor's own photo can be dropped on the eye too. Nothing is uploaded.
  *   The pupil widens for a gradeable photo and narrows for a bad one.
- * - Below 768px only the eye is shown. Reduced motion: no drifting, turning or glitching;
+ * - Phones (below 768px): the eye sits in the middle of the space under the hero buttons and
+ *   the other two shapes sit small in its top corners. Tapping a corner shape swaps it into
+ *   the middle. Tapping the middle shape enters focus mode: the rest of the page fades back,
+ *   dragging spins the shape (the eye too, while it keeps watching the finger), and tapping
+ *   it plays its effect (Mizan's lines straighten or scatter, Beyond the Streak shows its next
+ *   chart, the eye's pupil widens). Three ways out: tap anywhere else, press "Done", or start
+ *   scrolling anywhere off the shape (which scrolls in the same motion). On phones the shapes
+ *   stay in the hero and scroll away with it. Reduced motion: no drifting, turning or glitching;
  *   objects still follow scrolling and can be dragged. Drawing stops when the tab is hidden.
  */
 
@@ -73,6 +80,10 @@ interface Body {
   baseY: number;
   sepX: number;
   sepY: number;
+  /** Phones: slot position relative to the hero's shape area (eased, so swaps glide). */
+  rel: { x: number; y: number; s: number; set: boolean };
+  /** Phones: Mizan's lines held straight by a tap. */
+  pressed: boolean;
 }
 
 /** True for an element that directly holds visible text (or is a control or image). */
@@ -145,8 +156,17 @@ export function mount(canvas: HTMLCanvasElement): void {
       baseY: 0,
       sepX: 0,
       sepY: 0,
+      rel: { x: 0, y: 0, s: 0, set: false },
+      pressed: false,
     };
   });
+  const shapeArea = document.querySelector<HTMLElement>('.hero__slots');
+  const mslot = (role: string): HTMLElement | null => document.querySelector<HTMLElement>(`[data-mslot="${role}"]`);
+  // Phones: which shape is in the middle and which corner each of the others has.
+  const role: Record<Key, 'main' | 'left' | 'right'> = { retina: 'main', mizan: 'left', hcgcc: 'right' };
+  const mainKey = (): Key => KEYS.find((k) => role[k] === 'main') ?? 'retina';
+  let focus = false;
+  const doneBtn = document.querySelector<HTMLButtonElement>('[data-scene-done]');
   const projects = document.getElementById('projects');
 
   let w = 0;
@@ -225,7 +245,7 @@ export function mount(canvas: HTMLCanvasElement): void {
     const h1 = hit(x, y);
     if (!h1) return false;
     // The eye can be moved but never spun; other objects spin when grabbed near the edge.
-    const spin = h1.body.key !== 'retina' && h1.d >= h1.body.radius * 0.6;
+    const spin = focus || (h1.body.key !== 'retina' && h1.d >= h1.body.radius * 0.6);
     drag = { body: h1.body, mode: spin ? 'rotate' : 'move', x, y, id };
     returning = false;
     lastInput = clock;
@@ -234,26 +254,113 @@ export function mount(canvas: HTMLCanvasElement): void {
     return true;
   };
 
-  // Phones (narrow screens): objects can't be dragged by touch. The eye fills most of the
-  // screen width there, so grabbing it would block scrolling and drag it over the buttons.
-  const touchDrag = (): boolean => w >= 768;
+  /* ---------- phones: swap shapes, focus mode ---------- */
+  const isNarrow = (): boolean => w < 768;
+  const mainBody = (): Body => bodies.find((b) => b.key === mainKey()) as Body;
+  // Corner shapes are small, so a finger gets a little extra room around them.
+  const touchHit = (x: number, y: number): Body | null => {
+    let best: Body | null = null;
+    let bestD = Infinity;
+    for (const b of bodies) {
+      if (!b.visible) continue;
+      const d = Math.hypot(x - b.x, y - b.y);
+      const reach = role[b.key] === 'main' ? b.radius : b.radius * 1.4 + 8;
+      if (d < reach && d < bestD) [best, bestD] = [b, d];
+    }
+    return best;
+  };
+  const swapIn = (key: Key): void => {
+    const was = mainKey();
+    if (was === key) return;
+    const corner = role[key];
+    role[key] = 'main';
+    role[was] = corner;
+    const old = bodies.find((b) => b.key === was) as Body;
+    old.rot.x = 0;
+    old.rot.y = 0;
+    wake();
+  };
+  const enterFocus = (): void => {
+    if (focus) return;
+    focus = true;
+    document.documentElement.dataset.sceneFocus = '';
+    if (doneBtn) doneBtn.hidden = false;
+    wake();
+  };
+  const exitFocus = (): void => {
+    if (!focus) return;
+    focus = false;
+    delete document.documentElement.dataset.sceneFocus;
+    if (doneBtn) doneBtn.hidden = true;
+    endDrag();
+    returning = true; // spin back home
+    pointerX = -1;
+    pointerY = -1;
+    wake();
+  };
+  // A tap on the middle shape while in focus mode plays its effect.
+  const play = (b: Body): void => {
+    if (b.key === 'mizan') b.pressed = !b.pressed;
+    else if (b.key === 'hcgcc') startGlitch(b, (b.design + 1) % b.obj.designCount);
+    else eye.pupilFor(1.3, 0.7);
+    wake();
+  };
+  doneBtn?.addEventListener('click', exitFocus);
+
+  let tap: { x: number; y: number; t: number; id: number } | null = null;
   window.addEventListener(
     'pointerdown',
     (e) => {
       if (e.button !== 0) return;
-      if (e.pointerType !== 'mouse' && !touchDrag()) return;
+      if (e.pointerType !== 'mouse' && isNarrow()) {
+        if (e.target instanceof Element && e.target.closest(INTERACTIVE)) return;
+        tap = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
+        const b = touchHit(e.clientX, e.clientY);
+        if (focus && b && role[b.key] === 'main') {
+          pointerX = e.clientX;
+          pointerY = e.clientY;
+          startDrag(e.clientX, e.clientY, e.pointerId, e.target);
+        }
+        return;
+      }
       if (startDrag(e.clientX, e.clientY, e.pointerId, e.target)) e.preventDefault();
     },
     { capture: true },
   );
-  // Touch on tablets: stop the page from scrolling when a finger lands on an object.
+  window.addEventListener(
+    'pointerup',
+    (e) => {
+      const t0 = tap;
+      tap = null;
+      if (!t0 || e.pointerId !== t0.id || !isNarrow()) return;
+      const moved = Math.hypot(e.clientX - t0.x, e.clientY - t0.y);
+      if (moved > 10 || performance.now() - t0.t > 500) return; // a drag or a long press
+      const b = touchHit(e.clientX, e.clientY);
+      if (!b) {
+        exitFocus(); // way out 1: tap anywhere else
+        return;
+      }
+      if (role[b.key] !== 'main') swapIn(b.key);
+      else if (!focus) enterFocus();
+      else play(b);
+    },
+    { capture: true },
+  );
+  // Touch: keep the page still when a finger lands on a shape it can act on. Anywhere else
+  // in focus mode, leave focus mode and let the touch scroll the page (way out 3).
   window.addEventListener(
     'touchstart',
     (e) => {
-      if (!touchDrag()) return;
       const t = e.touches[0];
       if (!t || e.touches.length > 1) return;
       if (e.target instanceof Element && e.target.closest(INTERACTIVE)) return;
+      if (isNarrow()) {
+        if (!focus) return; // outside focus mode, shapes never block scrolling
+        const b = touchHit(t.clientX, t.clientY);
+        if (b) e.preventDefault();
+        else exitFocus();
+        return;
+      }
       if (hit(t.clientX, t.clientY)) e.preventDefault();
     },
     { passive: false, capture: true },
@@ -282,7 +389,7 @@ export function mount(canvas: HTMLCanvasElement): void {
   window.addEventListener(
     'pointermove',
     (e) => {
-      if (e.pointerType === 'mouse') {
+      if (e.pointerType === 'mouse' || (focus && drag && e.pointerId === drag.id)) {
         pointerX = e.clientX;
         pointerY = e.clientY;
       }
@@ -325,6 +432,7 @@ export function mount(canvas: HTMLCanvasElement): void {
     'scroll',
     () => {
       lastInput = clock;
+      if (focus && !drag) exitFocus();
       if (!drag) {
         returning = true;
         // Unwind idle turning so objects take the short way home.
@@ -357,7 +465,8 @@ export function mount(canvas: HTMLCanvasElement): void {
     // Keep objects apart (from last frame's positions). The eye never moves for this, and an
     // object being dragged is only pushed when it is dragged onto the eye.
     const push = new Map<Body, { x: number; y: number }>(bodies.map((b) => [b, { x: 0, y: 0 }]));
-    for (let i = 0; i < bodies.length; i++) {
+    // (Phones skip this: their slots never overlap, and a swap passes shapes through each other.)
+    for (let i = 0; i < bodies.length && !narrow; i++) {
       for (let j = i + 1; j < bodies.length; j++) {
         const a = bodies[i] as Body;
         const c = bodies[j] as Body;
@@ -391,16 +500,29 @@ export function mount(canvas: HTMLCanvasElement): void {
       const rr = b.row?.getBoundingClientRect();
       const heroOk = !!hr && hr.width > 0;
       const rowOk = !!rr && rr.width > 0;
-      if (narrow && b.key !== 'retina') {
-        g.visible = b.visible = false;
-        continue;
-      }
-
       // Slot position: hero, sliding into the row as the row comes up.
       let sx = w + 400;
       let sy = h / 2;
       let ss = 0;
-      if (heroOk || rowOk) {
+      const area = narrow ? shapeArea?.getBoundingClientRect() : undefined;
+      const ms = narrow ? mslot(role[b.key])?.getBoundingClientRect() : undefined;
+      if (area && ms && ms.width > 0) {
+        // Phones: the shape's place in the hero (middle or a corner), eased so swaps glide.
+        const tx = ms.left + ms.width / 2 - area.left;
+        const ty = ms.top + ms.height / 2 - area.top;
+        const ts = Math.min(ms.width, ms.height);
+        const r0 = b.rel;
+        if (!r0.set || reduced) Object.assign(r0, { x: tx, y: ty, s: ts, set: true });
+        else {
+          r0.x = approach(r0.x, tx, dt, 7);
+          r0.y = approach(r0.y, ty, dt, 7);
+          r0.s = approach(r0.s, ts, dt, 7);
+          if (Math.abs(r0.x - tx) + Math.abs(r0.y - ty) + Math.abs(r0.s - ts) > 0.5) busy = true;
+        }
+        sx = area.left + r0.x;
+        sy = area.top + r0.y;
+        ss = r0.s;
+      } else if (heroOk || rowOk) {
         const t = rowOk && heroOk ? smooth((h - (rr as DOMRect).top) / (h * 0.4)) : rowOk ? 1 : 0;
         const a = (heroOk ? hr : rr) as DOMRect;
         const c = (rowOk ? rr : hr) as DOMRect;
@@ -459,7 +581,7 @@ export function mount(canvas: HTMLCanvasElement): void {
 
       // Fade over text (checked every few frames; it reads the page layout).
       if (frameNo % 5 === 0) b.overText = textAt(x, y, b.radius, 0.6);
-      const op = b.overText ? FADED : 1;
+      const op = narrow && focus ? (role[b.key] === 'main' ? 1 : FADED) : b.overText ? FADED : 1;
       if (Math.abs(b.opacity - op) > 0.01) {
         b.opacity = reduced ? op : approach(b.opacity, op, dt, 6);
         busy = true;
@@ -499,6 +621,10 @@ export function mount(canvas: HTMLCanvasElement): void {
         eye.look(lx, ly);
         placePanel(x, y, b.radius);
       }
+      if (focus && doneBtn && role[b.key] === 'main') {
+        doneBtn.style.left = `${x}px`;
+        doneBtn.style.top = `${Math.min(h - 56, y + b.radius / 0.82 + 8)}px`;
+      }
     }
     if (returning && !busy) returning = false;
     return anyVisible && (busy || !reduced);
@@ -524,7 +650,7 @@ export function mount(canvas: HTMLCanvasElement): void {
     if (!reduced) time += dt;
     frameNo++;
     const keepGoing = place(dt);
-    for (const b of bodies) b.obj.update(reduced ? 1 : dt, time, hovered === b.key);
+    for (const b of bodies) b.obj.update(reduced ? 1 : dt, time, hovered === b.key || b.pressed);
     renderer.render(scene, camera);
     if (keepGoing && document.visibilityState === 'visible') raf = requestAnimationFrame(frame);
   };
@@ -635,6 +761,14 @@ export function mount(canvas: HTMLCanvasElement): void {
   window.addEventListener('eye:check', (e) => {
     const { url, from } = (e as CustomEvent<{ url: string; from?: HTMLImageElement }>).detail;
     const check = (): void => void showResult(fundusFromUrl(url));
+    // Phones: if the eye is in a corner, bring it to the middle first, then send the photo.
+    if (isNarrow() && mainKey() !== 'retina') {
+      swapIn('retina');
+      if (from && !reduced) {
+        window.setTimeout(() => window.dispatchEvent(new CustomEvent('eye:check', { detail: { url, from } })), 450);
+        return;
+      }
+    }
     if (!from || reduced || !eyeBody.visible) return check();
     const a = from.getBoundingClientRect();
     const ghost = from.cloneNode() as HTMLImageElement;
@@ -663,6 +797,7 @@ export function mount(canvas: HTMLCanvasElement): void {
   });
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && panel && !panel.hidden) panel.hidden = true;
+    if (e.key === 'Escape') exitFocus();
   });
 
   window.addEventListener('resize', () => {

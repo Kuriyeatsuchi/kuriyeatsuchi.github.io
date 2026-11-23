@@ -9,6 +9,9 @@ const { ui } = content(lang);
 ---
 <canvas class="project-scene" data-project-scene aria-hidden="true"></canvas>
 
+<!-- Phones: shown under the shape in focus mode. -->
+<button type="button" class="scene-done btn-line" data-scene-done hidden>{ui.eyeGate.done}</button>
+
 <!-- Filled in when a photo is dropped on the eye. -->
 <section class="eye-result" data-eye-result hidden aria-label={ui.eyeGate.panelLabel}>
   <button type="button" class="eye-result__close" data-eye-close aria-label={ui.library.close}>
@@ -45,6 +48,34 @@ const { ui } = content(lang);
 
   .project-scene:global(.is-ready) {
     opacity: 1;
+  }
+
+  .scene-done {
+    position: fixed;
+    z-index: 3;
+    min-width: 96px;
+    transform: translateX(-50%);
+  }
+
+  .scene-done[hidden] {
+    display: none;
+  }
+
+  /* Focus mode (phones): everything but the shapes fades back and stops taking taps, so a
+     tap anywhere on the page leaves focus mode. */
+  :global(html[data-scene-focus] main > :not([data-project-scene], [data-scene-done], [data-eye-result])),
+  :global(html[data-scene-focus] .site-header),
+  :global(html[data-scene-focus] .site-footer),
+  :global(html[data-scene-focus] .starfield) {
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  :global(main > *),
+  :global(.site-header),
+  :global(.site-footer),
+  :global(.starfield) {
+    transition: opacity 250ms ease;
   }
 
   .eye-result {
