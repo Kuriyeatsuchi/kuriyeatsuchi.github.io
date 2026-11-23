@@ -255,6 +255,23 @@ export function mount(canvas: HTMLCanvasElement): void {
 
   let pointerX = -1;
   let pointerY = -1;
+  // Mouse position for the eye's gaze. mousemove as well as pointermove, so the gaze still
+  // updates in browsers or states where pointer events are throttled.
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      wake();
+    },
+    { passive: true },
+  );
+  // Mouse left the window: look straight ahead.
+  document.documentElement.addEventListener('mouseleave', () => {
+    pointerX = -1;
+    pointerY = -1;
+    wake();
+  });
 
   window.addEventListener(
     'pointermove',
@@ -465,10 +482,13 @@ export function mount(canvas: HTMLCanvasElement): void {
       b.obj.setOpacity(b.opacity * flicker);
 
       if (b.key === 'retina') {
-        // Always follow the cursor. tanh eases toward the limit instead of stopping dead,
-        // so the eye keeps responding even when the cursor is far across the screen.
-        const lx = pointerX < 0 ? 0 : 0.9 * Math.tanh((pointerX - x) / Math.max(300, w * 0.45));
-        const ly = pointerY < 0 ? 0 : 0.6 * Math.tanh((pointerY - y) / Math.max(300, h * 0.55));
+        // Look at the cursor as if it were a point just in front of the eye (depth ~1.4 eye
+        // radii): a cursor on the eye's own rim already turns it clearly, and far-away cursors
+        // ease toward the limit (tanh) instead of stopping dead.
+        const depth = Math.max(160, b.radius * 1.4);
+        const soft = (angle: number, max: number): number => max * Math.tanh(angle / max);
+        const lx = pointerX < 0 ? 0 : soft(Math.atan2(pointerX - x, depth), 0.85);
+        const ly = pointerY < 0 ? 0 : soft(Math.atan2(pointerY - y, depth), 0.6);
         eye.look(lx, ly);
         placePanel(x, y, b.radius);
       }
