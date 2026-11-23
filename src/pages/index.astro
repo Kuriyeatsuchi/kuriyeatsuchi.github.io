@@ -1,8 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import Mizan from '../components/Mizan.astro';
-import Retina from '../components/Retina.astro';
+import Projects from '../components/Projects.astro';
 import CompetitiveProgramming from '../components/CompetitiveProgramming.astro';
 import Hcgcc from '../components/Hcgcc.astro';
 import Achievements from '../components/Achievements.astro';
@@ -11,8 +10,7 @@ import { competitiveProgramming, ui } from '../content/site';
 ---
 <Base title={ui.meta.title} description={ui.meta.description} canonicalPath="/">
   <Hero />
-  <Mizan />
-  <Retina />
+  <Projects />
   {competitiveProgramming.problems.length > 0 && <CompetitiveProgramming />}
   <Hcgcc />
   <Achievements />

@@ -1,56 +1,53 @@
 ---
-import Rich from './Rich.astro';
 import { retina, ui } from '../content/site';
 
 // Results (AUCs, CIs, CV range) and the data statement stay hidden until
 // CONTENT.md has dataset size, patient split and 95% CIs. See site.ts.
 // TODO(content): link to /retina once the case study page ships (v1.x).
 ---
-<section id="retina" class="section" aria-labelledby="retina-title">
-  <div class="container">
-    <p class="kicker"><Rich text={retina.period} /></p>
-    <h2 id="retina-title" class="section-title">{retina.title}</h2>
-    <p class="lede">{retina.oneLine}</p>
-    {retina.whyItMatters && <p class="retina__why">{retina.whyItMatters}</p>}
-    <p class="retina__origin dim"><Rich text={retina.origin} /></p>
+<article id="retina" class="project" aria-labelledby="retina-title">
+  <p class="kicker">{retina.period}</p>
+  <h3 id="retina-title" class="project-title">{retina.title}</h3>
+  <p class="lede">{retina.oneLine}</p>
+  {retina.whyItMatters && <p class="retina__why">{retina.whyItMatters}</p>}
+  <p class="retina__origin dim">{retina.origin}</p>
 
-    <div class="stages">
-      <div class="stage">
-        <h3 class="subhead">{ui.retina.stage1}</h3>
-        <p class="cap"><Rich text={retina.stage1} /></p>
-      </div>
-      <div class="stage">
-        <h3 class="subhead">{ui.retina.stage2}</h3>
-        <p class="cap"><Rich text={retina.stage2} /></p>
-      </div>
+  <div class="stages">
+    <div class="stage">
+      <h4 class="subhead">{ui.retina.stage1}</h4>
+      <p class="cap">{retina.stage1}</p>
     </div>
-
-    {
-      retina.stack.length > 0 && (
-        <div class="retina__stack">
-          <h3 class="subhead">{ui.retina.stack}</h3>
-          <ul class="stack-list">
-            {retina.stack.map((tool) => (
-              <li>{tool}</li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-
-    <p class="disclaimer">{retina.disclaimer}</p>
-
-    {
-      retina.repoUrl && (
-        <ul class="links">
-          <li>
-            <a href={retina.repoUrl}>{ui.retina.code}</a>
-          </li>
-        </ul>
-      )
-    }
+    <div class="stage">
+      <h4 class="subhead">{ui.retina.stage2}</h4>
+      <p class="cap">{retina.stage2}</p>
+    </div>
   </div>
-</section>
+
+  {
+    retina.stack.length > 0 && (
+      <div class="retina__stack">
+        <h4 class="subhead">{ui.retina.stack}</h4>
+        <ul class="stack-list">
+          {retina.stack.map((tool) => (
+            <li>{tool}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <p class="disclaimer">{retina.disclaimer}</p>
+
+  {
+    retina.repoUrl && (
+      <ul class="links">
+        <li>
+          <a href={retina.repoUrl}>{ui.retina.code}</a>
+        </li>
+      </ul>
+    )
+  }
+</article>
 
 <style>
   .retina__why,

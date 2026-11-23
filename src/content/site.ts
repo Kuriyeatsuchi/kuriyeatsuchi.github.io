@@ -287,6 +287,9 @@ export const ui = {
     viewWork: 'View work',
     downloadCv: 'Download CV',
   },
+  projects: {
+    heading: 'Projects',
+  },
   mizan: {
     kicker: 'NASA Space Apps 2026 team project · Nov 2026',
     code: 'Code on GitHub',
