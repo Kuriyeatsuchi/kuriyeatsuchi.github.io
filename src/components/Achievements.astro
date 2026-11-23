@@ -1,0 +1,124 @@
+---
+import Rich from './Rich.astro';
+import { achievements, training, ui } from '../content/site';
+
+const MONTHS: Record<string, string> = {
+  Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+  Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+};
+
+/** "Nov 2026" -> "2026-11" for <time datetime>. */
+function toDatetime(date: string): string | undefined {
+  const [month, year] = date.split(' ');
+  const mm = month ? MONTHS[month] : undefined;
+  return mm && year ? `${year}-${mm}` : undefined;
+}
+---
+<section id="achievements" class="section" aria-labelledby="achievements-title">
+  <div class="container">
+    <h2 id="achievements-title" class="section-title">{ui.achievements.heading}</h2>
+
+    <ol class="timeline">
+      {
+        achievements.map((a) => (
+          <li class="timeline__item">
+            {a.date && (
+              <time class="timeline__date mono" datetime={toDatetime(a.date)}>
+                {a.date}
+              </time>
+            )}
+            <p class="timeline__title">
+              <Rich text={a.title} />
+            </p>
+            {a.detail && (
+              <p class="timeline__detail dim">
+                <Rich text={a.detail} />
+              </p>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+
+    {
+      training.length > 0 && (
+        <div class="training">
+          <h3 class="subhead">{ui.achievements.training}</h3>
+          <ul class="training__list">
+            {training.map((t) => (
+              <li>
+                <span>{t.name}</span>
+                <span class="mono dim">{t.dates}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .timeline {
+    list-style: none;
+    margin-top: var(--space-6);
+    border-left: 1px solid var(--border);
+    margin-left: 4px;
+  }
+
+  .timeline__item {
+    position: relative;
+    padding-left: var(--space-5);
+  }
+
+  .timeline__item + .timeline__item {
+    margin-top: var(--space-6);
+  }
+
+  .timeline__item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 0.55em;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .timeline__date {
+    display: block;
+    color: var(--text-dim);
+    font-size: var(--step--1);
+  }
+
+  .timeline__title {
+    font-weight: 600;
+  }
+
+  .timeline__detail {
+    margin-top: var(--space-1);
+  }
+
+  .training {
+    margin-top: var(--space-8);
+  }
+
+  .training__list {
+    list-style: none;
+    font-size: var(--step--1);
+  }
+
+  .training__list li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 var(--space-5);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
+
+  .training__list li:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+</style>
