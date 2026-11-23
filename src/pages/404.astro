@@ -9,7 +9,7 @@ import { identity, ui } from '../content/site';
 >
   <section class="not-found">
     <div class="container">
-      <p class="mono not-found__code" aria-hidden="true">404</p>
+      <p class="not-found__code" aria-hidden="true">404</p>
       <h1 class="not-found__title">{ui.notFound.heading}</h1>
       <p class="not-found__body dim">{ui.notFound.body}</p>
       <a class="btn btn-primary not-found__home" href="/">{ui.notFound.home}</a>
@@ -23,6 +23,8 @@ import { identity, ui } from '../content/site';
   }
 
   .not-found__code {
+    font-family: var(--font-heading);
+    font-weight: 600;
     color: var(--accent);
     font-size: var(--step-1);
   }

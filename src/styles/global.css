@@ -165,7 +165,8 @@ strong {
 /* Utilities                                                           */
 /* ------------------------------------------------------------------ */
 
-/* Every metric, year and amount. */
+/* Standalone metrics only: HCGCC stat values, timeline dates, training dates.
+   Digits inside sentences, headings, chips and bullets use the normal fonts. */
 .mono {
   font-family: var(--font-mono);
   font-size: 0.94em;

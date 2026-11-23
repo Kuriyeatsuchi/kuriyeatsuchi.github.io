@@ -1,5 +1,4 @@
 ---
-import Rich from './Rich.astro';
 import { achievements, training, ui } from '../content/site';
 
 const MONTHS: Record<string, string> = {
@@ -27,13 +26,9 @@ function toDatetime(date: string): string | undefined {
                 {a.date}
               </time>
             )}
-            <p class="timeline__title">
-              <Rich text={a.title} />
-            </p>
+            <p class="timeline__title">{a.title}</p>
             {a.detail && (
-              <p class="timeline__detail dim">
-                <Rich text={a.detail} />
-              </p>
+              <p class="timeline__detail dim">{a.detail}</p>
             )}
           </li>
         ))

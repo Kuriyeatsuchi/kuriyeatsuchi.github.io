@@ -7,7 +7,6 @@
  * index.astro renders this section only when at least one write-up exists,
  * so it never shows up empty.
  */
-import Rich from './Rich.astro';
 import { competitiveProgramming as cp, ui } from '../content/site';
 
 const profileUrl = cp.codeforcesHandle
@@ -32,9 +31,7 @@ const profileUrl = cp.codeforcesHandle
           {cp.usacoDivision && (
             <div>
               <dt>{ui.cp.usaco}</dt>
-              <dd>
-                <Rich text={cp.usacoDivision} />
-              </dd>
+              <dd>{cp.usacoDivision}</dd>
             </div>
           )}
         </dl>
@@ -50,11 +47,9 @@ const profileUrl = cp.codeforcesHandle
             </h3>
             <dl class="problem__body">
               <dt class="subhead">{ui.cp.keyInsight}</dt>
-              <dd>
-                <Rich text={problem.keyInsight} />
-              </dd>
+              <dd>{problem.keyInsight}</dd>
               <dt class="subhead">{ui.cp.complexity}</dt>
-              <dd class="mono">{problem.complexity}</dd>
+              <dd>{problem.complexity}</dd>
             </dl>
           </article>
         ))
