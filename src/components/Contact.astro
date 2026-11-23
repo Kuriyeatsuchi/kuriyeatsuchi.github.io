@@ -1,0 +1,109 @@
+---
+/**
+ * About + Contact. The bio and headshot are hidden until they exist in
+ * CONTENT.md, so for now this is the Contact block only.
+ *
+ * Email: stored reversed in two parts and assembled in the browser, so the
+ * address never appears as plain text in the HTML.
+ */
+import { aboutBio, identity, ui } from '../content/site';
+
+const display = (url: string): string => url.replace(/^https?:\/\/(www\.)?/, '');
+---
+<section id="contact" class="section" aria-labelledby="contact-title">
+  <div class="container">
+    <h2 id="contact-title" class="section-title">{ui.contact.heading}</h2>
+
+    {
+      identity.headshotSrc && (
+        <img class="contact__photo" src={identity.headshotSrc} alt="" width="160" height="160" />
+      )
+    }
+    {/* TODO(content): headshot alt text needs approval when the photo is added */}
+    {aboutBio && <p class="contact__bio">{aboutBio}</p>}
+
+    <dl class="contact__list">
+      <div>
+        <dt>{ui.contact.email}</dt>
+        <dd class="contact__email">
+          <a
+            data-email-user={identity.emailReversed.user}
+            data-email-domain={identity.emailReversed.domain}
+            hidden
+          />
+          <noscript>
+            <span class="dim">{ui.contact.noJsEmail}</span>
+          </noscript>
+        </dd>
+      </div>
+      <div>
+        <dt>{ui.contact.github}</dt>
+        <dd><a href={identity.githubUrl}>{display(identity.githubUrl)}</a></dd>
+      </div>
+      <div>
+        <dt>{ui.contact.linkedin}</dt>
+        <dd><a href={identity.linkedinUrl}>{display(identity.linkedinUrl)}</a></dd>
+      </div>
+    </dl>
+
+    {
+      identity.cvHref && (
+        <a class="btn btn-secondary contact__cv" href={identity.cvHref} download>
+          {ui.contact.downloadCv}
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  const link = document.querySelector<HTMLAnchorElement>('[data-email-user]');
+  const reverse = (s: string): string => [...s].reverse().join('');
+  const user = link?.dataset.emailUser;
+  const domain = link?.dataset.emailDomain;
+  if (link && user && domain) {
+    const address = `${reverse(user)}@${reverse(domain)}`;
+    link.href = `mailto:${address}`;
+    link.textContent = address;
+    link.hidden = false;
+  }
+</script>
+
+<style>
+  .contact__photo {
+    border-radius: 50%;
+    margin-top: var(--space-6);
+  }
+
+  .contact__bio {
+    margin-top: var(--space-5);
+  }
+
+  .contact__list {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .contact__list > div {
+      display: grid;
+      grid-template-columns: 7rem 1fr;
+      align-items: baseline;
+    }
+  }
+
+  .contact__list dt {
+    color: var(--text-dim);
+    font-size: var(--step--1);
+  }
+
+  /* Reserve one line so the assembled address doesn't shift layout. */
+  .contact__email {
+    min-height: 1lh;
+  }
+
+  .contact__cv {
+    margin-top: var(--space-7);
+  }
+</style>

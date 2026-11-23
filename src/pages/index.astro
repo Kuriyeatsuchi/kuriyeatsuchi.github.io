@@ -6,6 +6,7 @@ import Retina from '../components/Retina.astro';
 import CompetitiveProgramming from '../components/CompetitiveProgramming.astro';
 import Hcgcc from '../components/Hcgcc.astro';
 import Achievements from '../components/Achievements.astro';
+import Contact from '../components/Contact.astro';
 import { competitiveProgramming, ui } from '../content/site';
 ---
 <Base title={ui.meta.title} description={ui.meta.description} canonicalPath="/">
@@ -15,4 +16,5 @@ import { competitiveProgramming, ui } from '../content/site';
   {competitiveProgramming.problems.length > 0 && <CompetitiveProgramming />}
   <Hcgcc />
   <Achievements />
+  <Contact />
 </Base>
