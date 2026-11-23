@@ -4,7 +4,7 @@
  * them in CONTENT.md ("Library").
  */
 
-export type LibraryCategory = 'award' | 'competition' | 'program' | 'course' | 'academic';
+export type LibraryCategory = 'award' | 'competition' | 'program' | 'course';
 
 export interface LibraryFile {
   src: string;
@@ -597,91 +597,6 @@ export const library: readonly LibraryEntry[] = [
         "thumb": "/library/nvidia-dli-2024-1-thumb.webp",
         "width": 1152,
         "height": 1600
-      }
-    ]
-  },
-  {
-    "slug": "rank-6-2024",
-    "category": "academic",
-    "year": 2024,
-    "sort": "2024-03",
-    "title": "Rank 6, second trimester 2023–2024",
-    "detail": "Certificate of Excellence",
-    "issuer": "Abdulrahman Fakieh Model Schools",
-    "files": [
-      {
-        "src": "/library/rank-6-2024-1.webp",
-        "thumb": "/library/rank-6-2024-1-thumb.webp",
-        "width": 1392,
-        "height": 928
-      }
-    ]
-  },
-  {
-    "slug": "rank-3-2023",
-    "category": "academic",
-    "year": 2023,
-    "sort": "2023-12",
-    "title": "Rank 3, first trimester 2023–2024",
-    "detail": "Certificate of Excellence",
-    "issuer": "Abdulrahman Fakieh Model Schools",
-    "files": [
-      {
-        "src": "/library/rank-3-2023-1.webp",
-        "thumb": "/library/rank-3-2023-1-thumb.webp",
-        "width": 1196,
-        "height": 824
-      }
-    ]
-  },
-  {
-    "slug": "excellence-2022",
-    "category": "academic",
-    "year": 2022,
-    "sort": "2022-12",
-    "title": "Certificate of Excellence, first term 2022–2023",
-    "detail": "Brilliant and consistent high marks in all subjects",
-    "issuer": "Abdulrahman Fakieh Model Schools",
-    "files": [
-      {
-        "src": "/library/excellence-2022-1.webp",
-        "thumb": "/library/excellence-2022-1-thumb.webp",
-        "width": 1328,
-        "height": 928
-      }
-    ]
-  },
-  {
-    "slug": "excellence-2020",
-    "category": "academic",
-    "year": 2020,
-    "sort": "2020-01",
-    "title": "Certificate of Excellence, 2020",
-    "detail": "High marks in all subjects, grades 4–6",
-    "issuer": "Abdulrahman Fakieh Model Schools",
-    "files": [
-      {
-        "src": "/library/excellence-2020-1.webp",
-        "thumb": "/library/excellence-2020-1-thumb.webp",
-        "width": 1500,
-        "height": 1048
-      }
-    ]
-  },
-  {
-    "slug": "elementary-recognition",
-    "category": "academic",
-    "year": null,
-    "sort": "0000",
-    "title": "Recognition for excellence, first semester",
-    "detail": "Elementary school",
-    "issuer": "Abdulrahman Fakieh Model Schools",
-    "files": [
-      {
-        "src": "/library/elementary-recognition-1.webp",
-        "thumb": "/library/elementary-recognition-1-thumb.webp",
-        "width": 1132,
-        "height": 812
       }
     ]
   }

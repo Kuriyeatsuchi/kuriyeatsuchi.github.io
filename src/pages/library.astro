@@ -4,7 +4,7 @@ import { library, type LibraryCategory, type LibraryEntry } from '../content/lib
 import { ui } from '../content/site';
 
 const L = ui.library;
-const order: LibraryCategory[] = ['award', 'competition', 'program', 'course', 'academic'];
+const order: LibraryCategory[] = ['award', 'competition', 'program', 'course'];
 const counts = Object.fromEntries(order.map((c) => [c, library.filter((e) => e.category === c).length])) as Record<
   LibraryCategory,
   number
@@ -58,7 +58,7 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
         {
           [...groups.entries()].map(([year, entries]) => (
             <section class="lib-year" data-year aria-label={year}>
-              <h2 class="lib-year__label mono">{year}</h2>
+              <h2 class:list={['lib-year__label mono', { 'lib-year__label--word': !/^\d+$/.test(year) }]}>{year}</h2>
               <ol class="lib-rows">
                 {entries.map((e) => (
                   <li
@@ -436,6 +436,17 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
       top: 96px;
       align-self: start;
     }
+  }
+
+  /* Filtering hides whole years; [hidden] must beat the grid display above. */
+  .lib-year[hidden],
+  .lib-row[hidden] {
+    display: none;
+  }
+
+  .lib-year__label--word {
+    font-size: var(--step-1) !important;
+    padding-top: 0.4em;
   }
 
   .lib-year__label {

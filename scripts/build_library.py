@@ -87,18 +87,6 @@ E = [
    'Tuwaiq Academy (Satr)', ['Tuwaiq/Intro To IoT.png', 'Tuwaiq/Scratch - Level 1.png']),
   ('nvidia-dli-2024', 'course', 2024, '2024-08', 'NVIDIA DLI: Fundamentals of Deep Learning',
    'Certificate of Competency, 1 August 2024', 'NVIDIA Deep Learning Institute', ['Unsorted/My Learning | NVIDIA.pdf']),
-  # ---------------- Academic ----------------
-  ('rank-6-2024', 'academic', 2024, '2024-03', 'Rank 6, second trimester 2023–2024',
-   'Certificate of Excellence', 'Abdulrahman Fakieh Model Schools', ['Unsorted/Rank_6_school_2023_2024.JPG']),
-  ('rank-3-2023', 'academic', 2023, '2023-12', 'Rank 3, first trimester 2023–2024',
-   'Certificate of Excellence', 'Abdulrahman Fakieh Model Schools', ['Unsorted/Rank_3_school_2023_2024.JPG']),
-  ('excellence-2022', 'academic', 2022, '2022-12', 'Certificate of Excellence, first term 2022–2023',
-   'Brilliant and consistent high marks in all subjects', 'Abdulrahman Fakieh Model Schools',
-   ['Unsorted/High_marks_schoo_2022-2023.JPG']),
-  ('excellence-2020', 'academic', 2020, '2020-01', 'Certificate of Excellence, 2020',
-   'High marks in all subjects, grades 4–6', 'Abdulrahman Fakieh Model Schools', ['Unsorted/2020_good_marks_school.JPG']),
-  ('elementary-recognition', 'academic', None, '0000', 'Recognition for excellence, first semester',
-   'Elementary school', 'Abdulrahman Fakieh Model Schools', ['Unsorted/Marks_school.JPG']),
 ]
 
 # The 10-digit number under the name on the KAUST AI certificate (fractions of width/height).
@@ -155,7 +143,7 @@ ts = '''/**
  * them in CONTENT.md ("Library").
  */
 
-export type LibraryCategory = 'award' | 'competition' | 'program' | 'course' | 'academic';
+export type LibraryCategory = 'award' | 'competition' | 'program' | 'course';
 
 export interface LibraryFile {
   src: string;
