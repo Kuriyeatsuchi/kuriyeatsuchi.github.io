@@ -2,13 +2,13 @@
 
 /* ------------------------------------------------------------------ */
 /* Fonts (self-hosted woff2)                                           */
-/* Inter and JetBrains Mono: SIL OFL 1.1, Latin subset (licenses in    */
-/* /fonts). General Sans: ITF Free Font License, unmodified.           */
+/* Instrument Sans (600 instance), Inter and JetBrains Mono: all SIL  */
+/* OFL 1.1, Latin subset. Licenses in /fonts.                          */
 /* ------------------------------------------------------------------ */
 
 @font-face {
-  font-family: 'General Sans';
-  src: url('/fonts/GeneralSans-Semibold.woff2') format('woff2');
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -41,13 +41,13 @@
 /* Metric-matched fallbacks so the swap to web fonts doesn't shift layout (CLS).
    Values measured from the font files (hhea metrics + average advance width). */
 @font-face {
-  font-family: 'General Sans Fallback';
+  font-family: 'Instrument Sans Fallback';
   src: local('Arial Bold'), local('Arial-BoldMT'), local('Arial');
   font-weight: 600;
-  size-adjust: 99.63%;
-  ascent-override: 101.37%;
-  descent-override: 24.09%;
-  line-gap-override: 10.04%;
+  size-adjust: 98.58%;
+  ascent-override: 98.39%;
+  descent-override: 25.36%;
+  line-gap-override: 0%;
 }
 
 @font-face {
