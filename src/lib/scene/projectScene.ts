@@ -11,7 +11,7 @@
  *   There, every 10 to 15 seconds, Mizan and Beyond the Streak glitch into another design.
  *   The eye always stays the eye.
  * - Dragging. Grab the middle of an object to move it anywhere; grab near its edge to spin
- *   it. Links and buttons under an object still work (dragging never starts on them).
+ *   it. The eye can only be moved, never spun: it always faces the visitor. Links and buttons under an object still work (dragging never starts on them).
  *   Scrolling sends every object back to its home position and rotation.
  * - Over text, an object fades so the text reads as if the object were behind it.
  * - Objects never overlap: overlapping pairs are pushed apart along the line between them.
@@ -223,7 +223,9 @@ export function mount(canvas: HTMLCanvasElement): void {
     if (target instanceof Element && target.closest(INTERACTIVE)) return false;
     const h1 = hit(x, y);
     if (!h1) return false;
-    drag = { body: h1.body, mode: h1.d < h1.body.radius * 0.6 ? 'move' : 'rotate', x, y, id };
+    // The eye can be moved but never spun; other objects spin when grabbed near the edge.
+    const spin = h1.body.key !== 'retina' && h1.d >= h1.body.radius * 0.6;
+    drag = { body: h1.body, mode: spin ? 'rotate' : 'move', x, y, id };
     returning = false;
     lastInput = clock;
     document.documentElement.style.cursor = drag.mode === 'move' ? 'move' : 'grabbing';
@@ -277,7 +279,11 @@ export function mount(canvas: HTMLCanvasElement): void {
       } else if (e.pointerType === 'mouse') {
         const over = e.target instanceof Element && e.target.closest(INTERACTIVE);
         const h1 = over ? null : hit(e.clientX, e.clientY);
-        document.documentElement.style.cursor = h1 ? (h1.d < h1.body.radius * 0.6 ? 'move' : 'grab') : '';
+        document.documentElement.style.cursor = h1
+          ? h1.body.key === 'retina' || h1.d < h1.body.radius * 0.6
+            ? 'move'
+            : 'grab'
+          : '';
       }
       wake();
     },
@@ -401,7 +407,7 @@ export function mount(canvas: HTMLCanvasElement): void {
 
       // Idle drift: a slow wander and a slow turn.
       const drift = wander;
-      if (drag?.body !== b) b.rot.y += dt * 0.05 * wander;
+      if (drag?.body !== b && b.key !== 'retina') b.rot.y += dt * 0.05 * wander;
       x += b.off.x + drift * (Math.sin(time * 0.11 + b.phase) * 26 + Math.sin(time * 0.047 + b.phase * 3) * 14);
       y += b.off.y + drift * Math.cos(time * 0.09 + b.phase * 1.7) * 20;
 

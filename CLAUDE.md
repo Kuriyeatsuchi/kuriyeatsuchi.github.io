@@ -123,6 +123,7 @@ inside the canvas.** Objects are points and lines built in code (no models).
    slides from the hero into that slot. Native scroll only; the page is never moved by script.
 3. **Hover/focus a row:** Mizan's lines straighten, the pupil widens, the bars rise.
 4. **Drag:** visitors can move any object anywhere (grab the middle) or spin it (grab the edge).
+   The eye can be moved but never spun, and it doesn't turn when idle.
    Dragging never starts on a link or button. Scrolling sends every object back home.
 5. **Over text** an object fades so the text reads as if the object were behind it.
    **Objects never overlap**; the eye never gets pushed, the others move out of its way.
