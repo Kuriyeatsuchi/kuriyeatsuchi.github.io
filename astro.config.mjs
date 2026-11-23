@@ -8,4 +8,6 @@ export default defineConfig({
   trailingSlash: 'ignore',
   // CSS is ~3 KB gzipped: inline it to remove render-blocking requests (faster LCP on mobile).
   build: { inlineStylesheets: 'always' },
+  // Astro's dev toolbar (dev server only) isn't part of the design.
+  devToolbar: { enabled: false },
 });
