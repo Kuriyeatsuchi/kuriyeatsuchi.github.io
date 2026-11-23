@@ -240,7 +240,7 @@ export const achievements: readonly Achievement[] = [
   {
     date: 'Jan 2026',
     title: 'National Math & Science Olympiad (NSMO) Finalist, Informatics',
-    detail: null,
+    detail: 'One of 108 finalists nationwide, selected from 85k+ students.',
   },
   {
     date: 'Apr 2024',
