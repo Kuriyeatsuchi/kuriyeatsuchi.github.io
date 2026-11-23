@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yousefalsharif.me/sitemap.xml
