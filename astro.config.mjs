@@ -6,4 +6,6 @@ export default defineConfig({
   site: 'https://yousefalsharif.me',
   output: 'static',
   trailingSlash: 'ignore',
+  // CSS is ~3 KB gzipped: inline it to remove render-blocking requests (faster LCP on mobile).
+  build: { inlineStylesheets: 'always' },
 });
