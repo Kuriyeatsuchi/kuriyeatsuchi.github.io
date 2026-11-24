@@ -97,9 +97,9 @@ const themes = [
         document.querySelector('[data-theme-color]').content = light ? (r.dataset.theme === 'frost' ? '#F3F6F9' : '#F4F2ED') : '#0B0D12';
       } catch (e) {}
     </script>
-    <link rel="icon" href="/favicon.ico?v=fullmoon" sizes="48x48" />
-    <link rel="icon" href="/favicon.svg?v=fullmoon" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=fullmoon" />
+    <link rel="icon" href="/favicon.ico?v=moon" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg?v=moon" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=moon" />
     <link rel="manifest" href="/site.webmanifest" />
 
     <meta property="og:type" content="website" />
@@ -138,7 +138,9 @@ const themes = [
       <div class="container site-header__inner">
         <div class="theme-menu" data-theme-menu>
           <a class="site-header__logo" aria-haspopup="true" aria-expanded="false" aria-controls="theme-menu" data-theme-trigger href={L('/')} aria-label={lang === 'ar' ? `${identity.name}، ${ui.nav.home}` : `${identity.name}, ${ui.nav.home}`}>
-            <img class="site-header__moon" src="/moon-logo.webp" alt="" width="28" height="28" decoding="async" />
+            <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32">
+              <path d="M13.389 5.315A11 11 0 1 0 26.685 18.611A9.5 9.5 0 0 1 13.389 5.315Z" fill="currentColor"></path>
+            </svg>
           </a>
           {/* Computers: hover (or keyboard focus) on the moon opens the theme list; clicking it still goes home. */}
           <div class="theme-menu__panel" id="theme-menu" data-theme-panel>
@@ -403,7 +405,7 @@ const themes = [
     padding-block: var(--space-5);
   }
 
-  /* The moon: the same full-moon photo as the favicon. */
+  /* The moon: same mark as the favicon. */
   .site-header__logo {
     display: grid;
     place-items: center;
@@ -413,16 +415,8 @@ const themes = [
     color: var(--text);
   }
 
-  .site-header__moon {
-    display: block;
-    width: 28px;
-    height: 28px;
-    -webkit-user-drag: none;
-    user-select: none;
-  }
-
   /* The moon wiggles once when the theme list opens. */
-  .site-header__logo:global(.is-wiggling) .site-header__moon {
+  .site-header__logo:global(.is-wiggling) svg {
     animation: moon-wiggle 480ms ease-in-out;
   }
 
