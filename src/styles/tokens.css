@@ -49,9 +49,9 @@
   color-scheme: dark;
 }
 
-/* Light mode: same layout and fonts, warm off-white page with near-black ink. The accent is a
+/* Light mode (the half-circle switch, any theme): same layout and fonts, warm off-white page with near-black ink. The accent is a
    deeper shade of the same amber so links keep 4.5:1 contrast on the light background. */
-:root[data-theme='light'] {
+:root[data-mode='light'] {
   --bg: #f4f2ed; /* warm off-white */
   --surface: #eae7e0;
   --text: #16181d; /* 15.9:1 on --bg */
@@ -71,7 +71,7 @@
 /* Frost: the same dark page with ice-blue links and buttons, faintly ice-tinted lines and
    cool white text (Yousef, 2026-11-24). All text passes 4.5:1 (body 16.9:1, secondary 7.5:1,
    links 9.1:1). No blur or glow. */
-:root[data-theme='frost'] {
+:root[data-theme='frost']:not([data-mode='light']) {
   --text: #eaf0f5;
   --text-dim: #94a3b3;
   --accent: #38bdf8; /* ice cyan */
@@ -80,6 +80,25 @@
   --shade-2: #9fb6c8;
   --shade-3: #5f7a8f;
   --eye-sclera: #6e7882;
+}
+
+/* Frost in light mode: a cool white page with a deeper ice blue, so links keep 4.5:1
+   (body 16.4:1, secondary 5.9:1, links 5.5:1). */
+:root[data-theme='frost'][data-mode='light'] {
+  --bg: #f3f6f9;
+  --surface: #e6ecf1;
+  --text: #121821;
+  --text-dim: #526070;
+  --accent: #0369a1;
+  --border: rgba(3, 105, 161, 0.14);
+  --border-strong: rgba(3, 105, 161, 0.3);
+  --shade-2: #5f7a8f;
+  --shade-3: #9fb6c8;
+  --eye-sclera: #9aa6b2;
+  --scrim: rgba(243, 246, 249, 0.96);
+  --shadow: rgba(18, 24, 33, 0.14);
+
+  color-scheme: light;
 }
 
 /* Arabic pages: Arabic system fonts (Instrument Sans and IBM Plex have no Arabic letters).

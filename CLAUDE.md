@@ -79,12 +79,12 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 --glow:      #5CC8FF   cyan, used ONLY for vessels / graph edges inside the 3D scene
 ```
 
-- **Themes** (Yousef, 2026-11-24): Default (the palette above, always first), Light and Frost, set
-  by `:root[data-theme='light' | 'frost']` in `tokens.css`. Light: bg `#F4F2ED`, text `#16181D`,
-  accent `#A84C17` (deeper amber for 4.5:1). Frost: same dark page, accent `#38BDF8`, text `#EAF0F5`,
-  faint ice-tinted borders; no blur or glow. On computers, hovering the moon (or focusing it) opens
-  the theme list with a small wiggle; clicking the moon still goes home. Phones have no theme menu
-  yet and always get Default. The choice is saved in localStorage and fires a `themechange` event.
+- **Light/dark and themes** (Yousef, 2026-11-24) are separate. The half-circle button in the header
+  sets `data-mode='light'` (every device). The moon's hover menu "Themes" (computers only for now)
+  sets `data-theme`: Default (the palette above, always first) or Frost. `tokens.css` has a block for
+  each combination: light (bg `#F4F2ED`, accent `#A84C17`), Frost dark (accent `#38BDF8`, cool
+  white text, faint ice-tinted borders, no blur or glow) and Frost light (bg `#F3F6F9`, accent
+  `#0369A1`). Both choices are saved in localStorage ('mode', 'theme') and fire `themechange`.
   Never hard-code a colour in a page: use a token, and anything drawn in canvas or WebGL must redraw
   on `themechange` (the 3D objects recolour through `setSceneTheme`).
 

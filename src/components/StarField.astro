@@ -49,9 +49,9 @@
 
     const draw = (t: number): void => {
       ctx.clearRect(0, 0, w, h);
-      const theme = document.documentElement.dataset.theme;
-      const light = theme === 'light';
-      const frost = theme === 'frost';
+      const root = document.documentElement;
+      const light = root.dataset.mode === 'light';
+      const frost = !light && root.dataset.theme === 'frost';
       const ink = light ? '22,24,29' : frost ? '226,238,248' : '232,230,225';
       const blue = light ? '40,92,140' : frost ? '125,211,252' : '126,184,224';
       const k = light ? 0.6 : 1; // dark specks read stronger on a light page

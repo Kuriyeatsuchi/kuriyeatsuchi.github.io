@@ -293,9 +293,11 @@ export const ui = {
     library: 'Library',
     achievements: 'Achievements',
     contact: 'Contact',
-    // PROPOSED (theme menu under the moon)
-    themes: 'Theme',
-    themeNames: { default: 'Default', light: 'Light', frost: 'Frost' },
+    // PROPOSED (light/dark switch, read by screen readers; theme menu under the moon)
+    toLight: 'Switch to light mode',
+    toDark: 'Switch to dark mode',
+    themes: 'Themes',
+    themeNames: { default: 'Default', frost: 'Frost' },
     // PROPOSED (screen-reader labels: the moon logo, the main menu, the language switch)
     home: 'home',
     main: 'Main',

@@ -679,12 +679,14 @@ export function mount(canvas: HTMLCanvasElement): void {
 
   // Light or dark page: recolour the objects and draw once more.
   const pageTheme = (): SceneTheme => {
-    const t = document.documentElement.dataset.theme;
-    return t === 'light' || t === 'frost' ? t : 'default';
+    const r = document.documentElement;
+    return r.dataset.mode === 'light' ? 'light' : r.dataset.theme === 'frost' ? 'frost' : 'default';
   };
-  setSceneTheme(pageTheme());
+  // The page background, so the ball hiding the back of the eye matches it exactly.
+  const pageBg = (): string => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  setSceneTheme(pageTheme(), pageBg());
   document.addEventListener('themechange', () => {
-    setSceneTheme(pageTheme());
+    setSceneTheme(pageTheme(), pageBg());
     wake();
   });
 

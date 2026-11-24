@@ -64,7 +64,7 @@ export interface EyeObject extends SceneObject {
 /* ---------- theme ---------- */
 const DARK_BG = new Color('#0B0D12');
 const DARK_TEXT = new Color('#E8E6E1');
-const LIGHT_BG = new Color('#F4F2ED');
+const LIGHT_BG = new Color('#F4F2ED'); // updated to the page's actual light background
 const LIGHT_TEXT = new Color('#16181D');
 const lum = (c: Color): number => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
 export type SceneTheme = 'default' | 'light' | 'frost';
@@ -91,8 +91,14 @@ function onTheme(apply: (theme: SceneTheme) => void): void {
 }
 
 /** Switch every object built so far (and every later one) to a theme. */
-export function setSceneTheme(theme: SceneTheme): void {
-  if (theme === sceneTheme) return;
+export function setSceneTheme(theme: SceneTheme, lightBg?: string): void {
+  let bgChanged = false;
+  if (theme === 'light' && lightBg) {
+    const next = new Color(lightBg);
+    bgChanged = !next.equals(LIGHT_BG);
+    LIGHT_BG.copy(next);
+  }
+  if (theme === sceneTheme && !bgChanged) return;
   sceneTheme = theme;
   for (const apply of themed) apply(theme);
 }

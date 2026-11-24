@@ -56,7 +56,6 @@ const goatcounter = identity.goatcounterCode;
 // Themes in the moon menu; the current design stays first. Swatch colours only.
 const themes = [
   { key: 'default', bg: '#0B0D12', accent: '#F08A4B' },
-  { key: 'light', bg: '#F4F2ED', accent: '#A84C17' },
   { key: 'frost', bg: '#0B0D12', accent: '#38BDF8' },
 ] as const;
 ---
@@ -85,15 +84,17 @@ const themes = [
     <meta name="theme-color" content="#0B0D12" data-theme-color />
     {/* Light or dark, before first paint so the page never flashes. Dark unless the visitor chose light. */}
     <script is:inline>
-      // The visitor's theme, before first paint so the page never flashes. Only on computers for
-      // now: phones have no theme menu yet, so they always get the default.
+      // Light/dark (every device) and theme (computers only for now: phones have no theme menu
+      // yet), before first paint so the page never flashes. Dark and Default unless chosen.
       try {
-        var t = localStorage.getItem('theme');
-        var colors = { light: '#F4F2ED', frost: '#0B0D12' };
-        if (colors[t] && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-          document.documentElement.dataset.theme = t;
-          document.querySelector('[data-theme-color]').content = colors[t];
-        }
+        var r = document.documentElement;
+        var mode = localStorage.getItem('mode');
+        var theme = localStorage.getItem('theme');
+        if (theme === 'light') { mode = 'light'; theme = 'default'; } // older saved choice
+        if (mode === 'light') r.dataset.mode = 'light';
+        if (theme === 'frost' && matchMedia('(hover: hover) and (pointer: fine)').matches) r.dataset.theme = 'frost';
+        var light = r.dataset.mode === 'light';
+        document.querySelector('[data-theme-color]').content = light ? (r.dataset.theme === 'frost' ? '#F3F6F9' : '#F4F2ED') : '#0B0D12';
       } catch (e) {}
     </script>
     <link rel="icon" href="/favicon.ico?v=moon" sizes="48x48" />
@@ -203,6 +204,13 @@ const themes = [
               </a>
             )
           }
+          <button class="theme-toggle" type="button" data-mode-toggle aria-label={ui.nav.toLight}
+            data-to-light={ui.nav.toLight} data-to-dark={ui.nav.toDark}>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
+              <circle cx="9" cy="9" r="7.25" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+              <path d="M9 1.75a7.25 7.25 0 0 1 0 14.5Z" fill="currentColor"></path>
+            </svg>
+          </button>
         </div>
       </div>
     </header>
@@ -220,16 +228,49 @@ const themes = [
 </html>
 
 <script>
+  // The browser bar colour follows the page background.
+  const syncMetaColor = (): void => {
+    const r = document.documentElement;
+    const light = r.dataset.mode === 'light';
+    const color = light ? (r.dataset.theme === 'frost' ? '#F3F6F9' : '#F4F2ED') : '#0B0D12';
+    document.querySelector<HTMLMetaElement>('[data-theme-color]')?.setAttribute('content', color);
+  };
+
+  // Light/dark switch (every device, any theme): flips the page, remembers the choice, and tells
+  // the starfield and the 3D scene (a "themechange" event) so they recolour.
+  const modeToggle = document.querySelector<HTMLButtonElement>('[data-mode-toggle]');
+  if (modeToggle) {
+    const root = document.documentElement;
+    const label = (): void => {
+      const light = root.dataset.mode === 'light';
+      modeToggle.setAttribute('aria-label', (light ? modeToggle.dataset.toDark : modeToggle.dataset.toLight) ?? '');
+      modeToggle.setAttribute('aria-pressed', light ? 'true' : 'false');
+    };
+    label();
+    modeToggle.addEventListener('click', () => {
+      const light = root.dataset.mode !== 'light';
+      if (light) root.dataset.mode = 'light';
+      else delete root.dataset.mode;
+      try {
+        localStorage.setItem('mode', light ? 'light' : 'dark');
+      } catch {
+        /* private browsing: the choice lasts for this page only */
+      }
+      syncMetaColor();
+      label();
+      document.dispatchEvent(new Event('themechange'));
+    });
+  }
+
   // Theme menu (computers): hover on the moon for a moment, or focus it with the keyboard, and
-  // the list opens with a small wiggle of the moon. Picking a theme recolours the page, is
-  // remembered, and tells the starfield and the 3D scene (a "themechange" event).
+  // the list opens with a small wiggle of the moon. Picking a theme recolours the page (in
+  // light or dark), is remembered, and tells the starfield and the 3D scene (a "themechange" event).
   const themeMenu = document.querySelector<HTMLElement>('[data-theme-menu]');
   const themeTrigger = themeMenu?.querySelector<HTMLAnchorElement>('[data-theme-trigger]');
   if (themeMenu && themeTrigger) {
     const root = document.documentElement;
     const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
     const still = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const metaColor: Record<string, string> = { default: '#0B0D12', light: '#F4F2ED', frost: '#0B0D12' };
     const choices = Array.from(themeMenu.querySelectorAll<HTMLButtonElement>('[data-theme-choice]'));
     const current = (): string => root.dataset.theme ?? 'default';
     const mark = (): void => {
@@ -243,7 +284,7 @@ const themes = [
       } catch {
         /* private browsing: the choice lasts for this page only */
       }
-      document.querySelector<HTMLMetaElement>('[data-theme-color]')?.setAttribute('content', metaColor[key] ?? '#0B0D12');
+      syncMetaColor();
       mark();
       document.dispatchEvent(new Event('themechange'));
     };
@@ -395,6 +436,32 @@ const themes = [
     100% {
       transform: rotate(0);
     }
+  }
+
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-block: -4px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    color: var(--text);
+  }
+
+  .theme-toggle svg {
+    transition: transform 400ms cubic-bezier(0.2, 0.75, 0.2, 1);
+  }
+
+  :root[data-mode='light'] .theme-toggle svg {
+    transform: rotate(180deg);
   }
 
   /* ---------- Theme menu (computers only for now) ---------- */
