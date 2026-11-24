@@ -79,12 +79,14 @@ All facts come from `CONTENT.md`. This file covers how to build the site.
 --glow:      #5CC8FF   cyan, used ONLY for vessels / graph edges inside the 3D scene
 ```
 
-- **Light mode** (Yousef asked for it, 2026-11-24): `:root[data-theme='light']` in `tokens.css`
-  swaps the palette (bg `#F4F2ED`, text `#16181D`, text-dim `#5C5A52`, accent `#A84C17`, a deeper
-  shade of the same amber so links keep 4.5:1). Dark is the default; the header switch saves the
-  choice in localStorage and fires a `themechange` event. Never hard-code a colour in a page:
-  use a token, and anything drawn in canvas or WebGL must redraw on `themechange`
-  (the 3D objects remap their colours through `setSceneTheme`).
+- **Themes** (Yousef, 2026-11-24): Default (the palette above, always first), Light and Frost, set
+  by `:root[data-theme='light' | 'frost']` in `tokens.css`. Light: bg `#F4F2ED`, text `#16181D`,
+  accent `#A84C17` (deeper amber for 4.5:1). Frost: same dark page, accent `#38BDF8`, text `#EAF0F5`,
+  faint ice-tinted borders; no blur or glow. On computers, hovering the moon (or focusing it) opens
+  the theme list with a small wiggle; clicking the moon still goes home. Phones have no theme menu
+  yet and always get Default. The choice is saved in localStorage and fires a `themechange` event.
+  Never hard-code a colour in a page: use a token, and anything drawn in canvas or WebGL must redraw
+  on `themechange` (the 3D objects recolour through `setSceneTheme`).
 
 - IBM Plex Mono ONLY for standalone metrics: HCGCC headline numbers, timeline dates and training dates.
   Digits inside sentences, headings, bullets and the hero lines use the normal body/heading font.

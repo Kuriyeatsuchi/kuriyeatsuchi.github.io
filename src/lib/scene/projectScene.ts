@@ -38,7 +38,7 @@
  */
 
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { makeBars, makeEye, makeTrend, setSceneTheme, type SceneObject } from './objects';
+import { makeBars, makeEye, makeTrend, setSceneTheme, type SceneObject, type SceneTheme } from './objects';
 import { degrade, judge, measure } from '../quality/metrics';
 import { REAL_LIMITS, fundusFromFile, fundusFromUrl, type RealFundus } from '../quality/real';
 import { content, pageLang } from '../../content/i18n';
@@ -678,10 +678,13 @@ export function mount(canvas: HTMLCanvasElement): void {
   }
 
   // Light or dark page: recolour the objects and draw once more.
-  const isLight = (): boolean => document.documentElement.dataset.theme === 'light';
-  setSceneTheme(isLight());
+  const pageTheme = (): SceneTheme => {
+    const t = document.documentElement.dataset.theme;
+    return t === 'light' || t === 'frost' ? t : 'default';
+  };
+  setSceneTheme(pageTheme());
   document.addEventListener('themechange', () => {
-    setSceneTheme(isLight());
+    setSceneTheme(pageTheme());
     wake();
   });
 

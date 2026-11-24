@@ -53,6 +53,12 @@ const alternates = canonicalPath
   : [];
 const ogImage = Astro.site ? new URL('/og.png', Astro.site).href : null;
 const goatcounter = identity.goatcounterCode;
+// Themes in the moon menu; the current design stays first. Swatch colours only.
+const themes = [
+  { key: 'default', bg: '#0B0D12', accent: '#F08A4B' },
+  { key: 'light', bg: '#F4F2ED', accent: '#A84C17' },
+  { key: 'frost', bg: '#0B0D12', accent: '#38BDF8' },
+] as const;
 ---
 <!doctype html>
 <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -79,10 +85,14 @@ const goatcounter = identity.goatcounterCode;
     <meta name="theme-color" content="#0B0D12" data-theme-color />
     {/* Light or dark, before first paint so the page never flashes. Dark unless the visitor chose light. */}
     <script is:inline>
+      // The visitor's theme, before first paint so the page never flashes. Only on computers for
+      // now: phones have no theme menu yet, so they always get the default.
       try {
-        if (localStorage.getItem('theme') === 'light') {
-          document.documentElement.dataset.theme = 'light';
-          document.querySelector('[data-theme-color]').content = '#F4F2ED';
+        var t = localStorage.getItem('theme');
+        var colors = { light: '#F4F2ED', frost: '#0B0D12' };
+        if (colors[t] && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+          document.documentElement.dataset.theme = t;
+          document.querySelector('[data-theme-color]').content = colors[t];
         }
       } catch (e) {}
     </script>
@@ -125,11 +135,31 @@ const goatcounter = identity.goatcounterCode;
 
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="site-header__logo" href={L('/')} aria-label={lang === 'ar' ? `${identity.name}، ${ui.nav.home}` : `${identity.name}, ${ui.nav.home}`}>
-          <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32">
-            <path d="M13.389 5.315A11 11 0 1 0 26.685 18.611A9.5 9.5 0 0 1 13.389 5.315Z" fill="currentColor"></path>
-          </svg>
-        </a>
+        <div class="theme-menu" data-theme-menu>
+          <a class="site-header__logo" aria-haspopup="true" aria-expanded="false" aria-controls="theme-menu" data-theme-trigger href={L('/')} aria-label={lang === 'ar' ? `${identity.name}، ${ui.nav.home}` : `${identity.name}, ${ui.nav.home}`}>
+            <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32">
+              <path d="M13.389 5.315A11 11 0 1 0 26.685 18.611A9.5 9.5 0 0 1 13.389 5.315Z" fill="currentColor"></path>
+            </svg>
+          </a>
+          {/* Computers: hover (or keyboard focus) on the moon opens the theme list; clicking it still goes home. */}
+          <div class="theme-menu__panel" id="theme-menu" data-theme-panel>
+            <div class="theme-menu__box">
+              <p class="theme-menu__label">{ui.nav.themes}</p>
+              <ul class="theme-menu__list">
+                {
+                  themes.map((t) => (
+                    <li>
+                      <button type="button" class="theme-menu__choice" data-theme-choice={t.key} aria-pressed="false">
+                        <span class="theme-menu__swatch" style={`--sw-bg:${t.bg};--sw-accent:${t.accent}`} aria-hidden="true"></span>
+                        {ui.nav.themeNames[t.key]}
+                      </button>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
         <nav aria-label={ui.nav.main}>
           <ul class="site-nav">
             <li class="nav-projects" data-menu>
@@ -173,13 +203,6 @@ const goatcounter = identity.goatcounterCode;
               </a>
             )
           }
-          <button class="theme-toggle" type="button" data-theme-toggle aria-label={ui.nav.toLight}
-            data-to-light={ui.nav.toLight} data-to-dark={ui.nav.toDark}>
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
-              <circle cx="9" cy="9" r="7.25" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-              <path d="M9 1.75a7.25 7.25 0 0 1 0 14.5Z" fill="currentColor"></path>
-            </svg>
-          </button>
         </div>
       </div>
     </header>
@@ -197,30 +220,70 @@ const goatcounter = identity.goatcounterCode;
 </html>
 
 <script>
-  // Light/dark switch: flips the page, remembers the choice, and tells the starfield and the
-  // 3D scene (a "themechange" event) so they recolour.
-  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-  if (toggle) {
+  // Theme menu (computers): hover on the moon for a moment, or focus it with the keyboard, and
+  // the list opens with a small wiggle of the moon. Picking a theme recolours the page, is
+  // remembered, and tells the starfield and the 3D scene (a "themechange" event).
+  const themeMenu = document.querySelector<HTMLElement>('[data-theme-menu]');
+  const themeTrigger = themeMenu?.querySelector<HTMLAnchorElement>('[data-theme-trigger]');
+  if (themeMenu && themeTrigger) {
     const root = document.documentElement;
-    const label = (): void => {
-      const light = root.dataset.theme === 'light';
-      toggle.setAttribute('aria-label', (light ? toggle.dataset.toDark : toggle.dataset.toLight) ?? '');
-      toggle.setAttribute('aria-pressed', light ? 'true' : 'false');
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const metaColor: Record<string, string> = { default: '#0B0D12', light: '#F4F2ED', frost: '#0B0D12' };
+    const choices = Array.from(themeMenu.querySelectorAll<HTMLButtonElement>('[data-theme-choice]'));
+    const current = (): string => root.dataset.theme ?? 'default';
+    const mark = (): void => {
+      for (const c of choices) c.setAttribute('aria-pressed', c.dataset.themeChoice === current() ? 'true' : 'false');
     };
-    label();
-    toggle.addEventListener('click', () => {
-      const light = root.dataset.theme !== 'light';
-      if (light) root.dataset.theme = 'light';
-      else delete root.dataset.theme;
+    const apply = (key: string): void => {
+      if (key === 'default') delete root.dataset.theme;
+      else root.dataset.theme = key;
       try {
-        localStorage.setItem('theme', light ? 'light' : 'dark');
+        localStorage.setItem('theme', key);
       } catch {
         /* private browsing: the choice lasts for this page only */
       }
-      document.querySelector<HTMLMetaElement>('[data-theme-color]')?.setAttribute('content', light ? '#F4F2ED' : '#0B0D12');
-      label();
+      document.querySelector<HTMLMetaElement>('[data-theme-color]')?.setAttribute('content', metaColor[key] ?? '#0B0D12');
+      mark();
       document.dispatchEvent(new Event('themechange'));
+    };
+    mark();
+    let openTimer = 0;
+    let closeTimer = 0;
+    const isOpen = (): boolean => themeMenu.hasAttribute('data-open');
+    const set = (open: boolean): void => {
+      if (open === isOpen()) return;
+      themeMenu.toggleAttribute('data-open', open);
+      themeTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open && !still.matches) {
+        themeTrigger.classList.remove('is-wiggling');
+        void themeTrigger.offsetWidth; // restart the animation
+        themeTrigger.classList.add('is-wiggling');
+      }
+    };
+    themeMenu.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse' || !canHover.matches) return;
+      clearTimeout(closeTimer);
+      openTimer = window.setTimeout(() => set(true), 250); // a pause, so passing over doesn't open it
     });
+    themeMenu.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(openTimer);
+      closeTimer = window.setTimeout(() => set(false), 200);
+    });
+    themeMenu.addEventListener('focusin', () => {
+      if (canHover.matches) set(true);
+    });
+    themeMenu.addEventListener('focusout', (e) => {
+      if (!themeMenu.contains(e.relatedTarget as Node | null)) set(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen()) {
+        set(false);
+        themeTrigger.focus();
+      }
+    });
+    for (const c of choices) c.addEventListener('click', () => apply(c.dataset.themeChoice ?? 'default'));
   }
 
   // Projects menu: opens on hover (with a short close delay), on keyboard focus, and on
@@ -309,11 +372,129 @@ const goatcounter = identity.goatcounterCode;
     height: 44px;
     margin-inline-start: -8px;
     color: var(--text);
-    transition: transform 400ms cubic-bezier(0.2, 0.75, 0.2, 1);
   }
 
-  .site-header__logo:hover {
-    transform: rotate(-18deg);
+  /* The moon wiggles once when the theme list opens. */
+  .site-header__logo:global(.is-wiggling) svg {
+    animation: moon-wiggle 480ms ease-in-out;
+  }
+
+  @keyframes moon-wiggle {
+    0% {
+      transform: rotate(0);
+    }
+    30% {
+      transform: rotate(-16deg);
+    }
+    60% {
+      transform: rotate(9deg);
+    }
+    85% {
+      transform: rotate(-3deg);
+    }
+    100% {
+      transform: rotate(0);
+    }
+  }
+
+  /* ---------- Theme menu (computers only for now) ---------- */
+  .theme-menu {
+    position: relative;
+  }
+
+  .theme-menu__panel {
+    position: absolute;
+    top: 100%;
+    inset-inline-start: -8px;
+    z-index: 11;
+    min-width: 200px;
+    padding-top: var(--space-2); /* a bridge, so moving down keeps it open */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 160ms ease, transform 200ms ease, visibility 0s linear 200ms;
+  }
+
+  .theme-menu[data-open] .theme-menu__panel {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 160ms ease, transform 200ms ease, visibility 0s;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .theme-menu__panel {
+      display: none;
+    }
+  }
+
+  .theme-menu__box {
+    padding: var(--space-3);
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px var(--shadow);
+  }
+
+  .theme-menu__label {
+    padding: var(--space-1) var(--space-2) var(--space-2);
+    color: var(--text-dim);
+    font-size: 0.8125rem;
+  }
+
+  .theme-menu__list {
+    list-style: none;
+    display: grid;
+    gap: 2px;
+  }
+
+  .theme-menu__choice {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: 40px;
+    padding: 0 var(--space-2);
+    background: none;
+    border: 0;
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    font: inherit;
+    font-size: var(--step--1);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .theme-menu__choice:hover,
+  .theme-menu__choice[aria-pressed='true'] {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  /* A small preview of each theme: its background with its accent. */
+  .theme-menu__swatch {
+    position: relative;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--sw-bg);
+    border: 1px solid var(--border-strong);
+  }
+
+  .theme-menu__swatch::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--sw-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-menu__panel,
+    .theme-menu[data-open] .theme-menu__panel {
+      transition: none;
+    }
   }
 
   .site-nav {
@@ -378,32 +559,6 @@ const goatcounter = identity.goatcounterCode;
       flex-basis: 100%;
       margin-inline-start: 0;
     }
-  }
-
-  .theme-toggle {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    margin-block: -4px;
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius);
-    background: none;
-    color: var(--text-dim);
-    cursor: pointer;
-  }
-
-  .theme-toggle:hover {
-    color: var(--text);
-  }
-
-  .theme-toggle svg {
-    transition: transform 400ms cubic-bezier(0.2, 0.75, 0.2, 1);
-  }
-
-  :root[data-theme='light'] .theme-toggle svg {
-    transform: rotate(180deg);
   }
 
   /* ---------- Projects menu ---------- */

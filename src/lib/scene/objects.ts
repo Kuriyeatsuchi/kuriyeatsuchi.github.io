@@ -18,10 +18,11 @@
  *   column of the three plan parts ($81M, $16M, $23M), and two lines that drift apart
  *   (+23% vs +8%). Hovering its row raises the bars.
  * - `setOpacity` lets the scene fade an object when it sits over text.
- * - Light mode: every colour is written for the dark page. `setSceneTheme(true)` remaps each
- *   one by its brightness, from the dark page's background-to-text range onto the light
- *   page's, so bright points become dark ink and faint points stay faint. The hidden ball
- *   behind the eye becomes the light background. The iris texture keeps its own colours.
+ * - Themes: every colour is written for the default dark page. `setSceneTheme('light')` remaps
+ *   each one by its brightness, from the dark page's background-to-text range onto the light
+ *   page's, so bright points become dark ink and faint points stay faint, and the hidden ball
+ *   behind the eye becomes the light background. `setSceneTheme('frost')` keeps the dark page
+ *   and cools every colour slightly toward ice blue. The iris texture keeps its own colours.
  */
 
 import {
@@ -66,27 +67,34 @@ const DARK_TEXT = new Color('#E8E6E1');
 const LIGHT_BG = new Color('#F4F2ED');
 const LIGHT_TEXT = new Color('#16181D');
 const lum = (c: Color): number => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
-let lightTheme = false;
-const themed: ((light: boolean) => void)[] = [];
+export type SceneTheme = 'default' | 'light' | 'frost';
+let sceneTheme: SceneTheme = 'default';
+const themed: ((theme: SceneTheme) => void)[] = [];
+const FROST_TINT = new Color(0.9, 0.97, 1.08); // per-channel multiplier toward ice blue
 
-/** `c` as it should look on the current page: unchanged on dark, remapped by brightness on light. */
-function themedColor(c: Color, light: boolean, out = new Color()): Color {
-  if (!light) return out.copy(c);
+/** `c` as it should look on the current page. */
+function themedColor(c: Color, theme: SceneTheme, out = new Color()): Color {
+  if (theme === 'frost') {
+    if (c.equals(DARK_BG)) return out.copy(c); // the hidden ball stays the page colour
+    out.copy(c).multiply(FROST_TINT);
+    return out.setRGB(Math.min(1, out.r), Math.min(1, out.g), Math.min(1, out.b));
+  }
+  if (theme !== 'light') return out.copy(c);
   const t = Math.min(1, Math.max(0, (lum(c) - lum(DARK_BG)) / (lum(DARK_TEXT) - lum(DARK_BG))));
   return out.copy(LIGHT_BG).lerp(LIGHT_TEXT, t);
 }
 
-/** Run `apply` now and again whenever the page switches between light and dark. */
-function onTheme(apply: (light: boolean) => void): void {
+/** Run `apply` now and again whenever the page changes theme. */
+function onTheme(apply: (theme: SceneTheme) => void): void {
   themed.push(apply);
-  apply(lightTheme);
+  apply(sceneTheme);
 }
 
-/** Switch every object built so far (and every later one) to the light or dark page. */
-export function setSceneTheme(light: boolean): void {
-  if (light === lightTheme) return;
-  lightTheme = light;
-  for (const apply of themed) apply(light);
+/** Switch every object built so far (and every later one) to a theme. */
+export function setSceneTheme(theme: SceneTheme): void {
+  if (theme === sceneTheme) return;
+  sceneTheme = theme;
+  for (const apply of themed) apply(theme);
 }
 
 const TEXT = new Color('#E8E6E1');
@@ -157,9 +165,9 @@ class Builder {
     const colorAttr = new Float32BufferAttribute(this.colors, 3);
     g.setAttribute('color', colorAttr);
     const tmp = new Color();
-    onTheme((light) => {
+    onTheme((theme) => {
       for (let i = 0; i < base.length; i += 3) {
-        themedColor(tmp.setRGB(base[i] as number, base[i + 1] as number, base[i + 2] as number), light, tmp);
+        themedColor(tmp.setRGB(base[i] as number, base[i + 1] as number, base[i + 2] as number), theme, tmp);
         colorAttr.setXYZ(i / 3, tmp.r, tmp.g, tmp.b);
       }
       colorAttr.needsUpdate = true;
@@ -172,7 +180,7 @@ class Builder {
       lg.setAttribute('position', new Float32BufferAttribute(this.edges, 3));
       const lm = new LineBasicMaterial({ color: DIM, transparent: true });
       materials.push(lm);
-      onTheme((light) => themedColor(DIM, light, lm.color));
+      onTheme((theme) => themedColor(DIM, theme, lm.color));
       group.add(new LineSegments(lg, lm));
     }
     return { group, positions, attr };
@@ -345,7 +353,7 @@ export function makeEye(pointSize: number): EyeObject {
   // A hidden ball in the background colour: it hides the far side of the shell.
   const occluderMaterial = new MeshBasicMaterial({ color: DARK_BG, transparent: true });
   materials.push(occluderMaterial);
-  onTheme((light) => themedColor(DARK_BG, light, occluderMaterial.color));
+  onTheme((theme) => themedColor(DARK_BG, theme, occluderMaterial.color));
   const occluder = new Mesh(new SphereGeometry(0.965, 40, 28), occluderMaterial);
   occluder.renderOrder = -1;
 

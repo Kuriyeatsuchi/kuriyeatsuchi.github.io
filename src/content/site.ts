@@ -293,9 +293,9 @@ export const ui = {
     library: 'Library',
     achievements: 'Achievements',
     contact: 'Contact',
-    // PROPOSED (labels for the light/dark switch, read by screen readers)
-    toLight: 'Switch to light mode',
-    toDark: 'Switch to dark mode',
+    // PROPOSED (theme menu under the moon)
+    themes: 'Theme',
+    themeNames: { default: 'Default', light: 'Light', frost: 'Frost' },
     // PROPOSED (screen-reader labels: the moon logo, the main menu, the language switch)
     home: 'home',
     main: 'Main',

@@ -68,6 +68,20 @@
   color-scheme: light;
 }
 
+/* Frost: the same dark page with ice-blue links and buttons, faintly ice-tinted lines and
+   cool white text (Yousef, 2026-11-24). All text passes 4.5:1 (body 16.9:1, secondary 7.5:1,
+   links 9.1:1). No blur or glow. */
+:root[data-theme='frost'] {
+  --text: #eaf0f5;
+  --text-dim: #94a3b3;
+  --accent: #38bdf8; /* ice cyan */
+  --border: rgba(186, 230, 253, 0.14);
+  --border-strong: rgba(186, 230, 253, 0.28);
+  --shade-2: #9fb6c8;
+  --shade-3: #5f7a8f;
+  --eye-sclera: #6e7882;
+}
+
 /* Arabic pages: Arabic system fonts (Instrument Sans and IBM Plex have no Arabic letters).
    Latin words inside Arabic text still use the site fonts. */
 :root[lang='ar'] {
