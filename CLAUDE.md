@@ -193,6 +193,11 @@ Never fetch Codeforces from the visitor's browser.
 `<title>`, meta description, canonical `https://yousefalsharif.me/`, OG image 1200×630 at
 `/og.png` (a render of the eye), favicon, `sitemap.xml`, `robots.txt`.
 
+**Logo** (Yousef, 2026-11-25): a full-moon photo he chose (Unsplash, NASA), cut out as a circle.
+It is the header moon (`public/moon-logo.webp`, which opens the Themes menu) and every icon:
+`favicon.ico`/`favicon.svg` (transparent), `apple-touch-icon.png` and `icon-192/512.png`
+(moon on `#0B0D12`). It replaced the drawn crescent. When the icons change, bump the `?v=` in `Base.astro`.
+
 ---
 
 ## Phases (don't start the next one until I say so)
