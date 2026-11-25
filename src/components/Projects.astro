@@ -46,6 +46,11 @@ const { projectPages, ui } = content(lang);
     text-decoration: none;
   }
 
+  /* The next section draws its own top line, so the last row has none (no double line). */
+  .project-list li:last-child .project-row {
+    border-bottom: 0;
+  }
+
   @media (min-width: 960px) {
     .project-row {
       grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) 180px;
