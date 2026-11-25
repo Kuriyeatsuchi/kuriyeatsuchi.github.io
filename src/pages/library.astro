@@ -612,8 +612,9 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
     color: var(--text);
   }
 
+  /* Solid backdrop: the Library list must not show through behind the certificate. */
   .viewer::backdrop {
-    background: var(--scrim);
+    background: var(--bg);
   }
 
   .viewer__inner {
@@ -622,14 +623,35 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
     height: 100%;
     gap: var(--space-5);
     padding: clamp(16px, 4vw, 48px);
-    grid-template-rows: minmax(0, 1fr) auto;
+    background: var(--bg);
+  }
+
+  /* Phones and tablets: certificate on top, details below, and the whole viewer scrolls if it
+     needs to. The image gets a fixed height limit in screen units (a percentage of a grid row
+     is ignored by iPhone Safari, which let tall certificates spill over the text). The top
+     padding keeps the certificate clear of the close button. */
+  @media (max-width: 959px) {
+    .viewer__inner {
+      grid-template-rows: auto auto;
+      align-content: start;
+      overflow-y: auto;
+      padding-top: 72px;
+    }
+
+    .viewer__stage img {
+      max-height: 58dvh;
+    }
   }
 
   @media (min-width: 960px) {
     .viewer__inner {
       grid-template-columns: minmax(0, 1fr) 320px;
-      grid-template-rows: 1fr;
+      grid-template-rows: minmax(0, 1fr);
       gap: var(--space-7);
+    }
+
+    .viewer__stage img {
+      max-height: calc(100dvh - 2 * clamp(16px, 4vw, 48px));
     }
   }
 
@@ -641,7 +663,6 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
 
   .viewer__stage img {
     max-width: 100%;
-    max-height: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -715,6 +736,13 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
 
   .viewer__hint {
     margin-top: var(--space-2);
+  }
+
+  /* No arrow keys or Esc on a touch screen, so no hint about them. */
+  @media (hover: none) and (pointer: coarse) {
+    .viewer__hint {
+      display: none;
+    }
   }
 
   .viewer__full {
