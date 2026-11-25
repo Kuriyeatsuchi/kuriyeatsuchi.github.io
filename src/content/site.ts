@@ -158,6 +158,8 @@ export interface PlanPart {
 export interface Hcgcc {
   title: string;
   competition: string;
+  /** Short name for tight spots (the Projects menu); same wording as the Achievements line. */
+  competitionShort: string;
   result: string;
   teamCredit: string;
   theCase: string;
@@ -171,6 +173,7 @@ export interface Hcgcc {
 export const hcgcc: Hcgcc = {
   title: 'Beyond the Streak',
   competition: 'Harvard Crimson Global Case Competition 2026',
+  competitionShort: 'HCGCC 2026',
   result: 'Top 50 teams globally',
   teamCredit:
     'Team Fortune: Abdulaziz Alsaghyir, Yousef Alsharif, Abdullah Alruwais, Ahmad Alhussain',

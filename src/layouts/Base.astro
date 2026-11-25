@@ -35,8 +35,10 @@ const extra: Record<string, (MenuLink | null)[]> = {
     { label: ui.hcgccBuilder.heading, href: '/hcgcc#build-title' },
   ],
 };
+// In the menu every project's line must fit on one line on a phone, so HCGCC uses its short name.
 const menu = projectPages.map((p) => ({
   ...p,
+  meta: p.slug === 'hcgcc' ? `${hcgcc.competitionShort} · ${hcgcc.result}` : p.meta,
   links: (extra[p.slug] ?? []).filter((l): l is MenuLink => l !== null),
 }));
 const other = lang === 'ar' ? 'en' : 'ar';

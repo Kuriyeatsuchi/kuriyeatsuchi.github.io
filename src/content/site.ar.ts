@@ -69,6 +69,7 @@ export const hcgcc: Hcgcc = {
   ...hcgccEn,
   // The deck's own title stays as it is.
   competition: 'مسابقة هارفارد كريمسون العالمية لدراسات الحالة 2026',
+  competitionShort: 'HCGCC ‏2026',
   result: 'ضمن أفضل 50 فريقًا عالميًا',
   // Arabic spellings from Yousef (2026-11-24).
   teamCredit: 'فريق Fortune: عبدالعزيز الصغير، يوسف الشريف، عبدالله الرويس، أحمد الحصين',
