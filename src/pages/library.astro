@@ -224,6 +224,8 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
           : []),
       );
       history.replaceState(null, '', `#${e.slug}`);
+      // Phones: each certificate starts at the top of the scrolling column.
+      dialog.querySelector('.viewer__inner')?.scrollTo(0, 0);
     };
 
     const step = (dir: 1 | -1): void => {
@@ -626,23 +628,6 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
     background: var(--bg);
   }
 
-  /* Phones and tablets: certificate on top, details below, and the whole viewer scrolls if it
-     needs to. The image gets a fixed height limit in screen units (a percentage of a grid row
-     is ignored by iPhone Safari, which let tall certificates spill over the text). The top
-     padding keeps the certificate clear of the close button. */
-  @media (max-width: 959px) {
-    .viewer__inner {
-      grid-template-rows: auto auto;
-      align-content: start;
-      overflow-y: auto;
-      padding-top: 72px;
-    }
-
-    .viewer__stage img {
-      max-height: 58dvh;
-    }
-  }
-
   @media (min-width: 960px) {
     .viewer__inner {
       grid-template-columns: minmax(0, 1fr) 320px;
@@ -767,6 +752,40 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
 
   .viewer__close:hover {
     border-color: var(--text);
+  }
+
+  /* Phones and tablets: a plain top-to-bottom column (certificate, then the details, then the
+     buttons) that scrolls as a whole. No grid here: in a grid both boxes could shrink and the
+     details were drawn on top of tall certificates. The image gets its height limit in screen
+     units, and the top padding keeps it clear of the close button. */
+  @media (max-width: 959px) {
+    .viewer__inner {
+      display: block;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-top: 72px;
+    }
+
+    .viewer__stage {
+      display: flex;
+      justify-content: center;
+      margin: 0;
+    }
+
+    .viewer__stage img {
+      display: block;
+      max-height: 58dvh;
+    }
+
+    .viewer__side {
+      overflow: visible;
+      margin-top: var(--space-5);
+    }
+
+    /* The close button stays put while the column scrolls. */
+    .viewer__close {
+      position: fixed;
+    }
   }
 
   :global(html.viewer-open) {
