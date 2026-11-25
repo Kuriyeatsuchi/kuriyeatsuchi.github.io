@@ -295,6 +295,25 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
       if (ev.key === 'ArrowLeft') step(-1);
     });
 
+    // Phones: swipe the certificate sideways to move between certificates. A swipe toward the
+    // reading start (left in English, right in Arabic) goes to the next one.
+    const stage = $<HTMLElement>('.viewer__stage');
+    let sx = 0;
+    let sy = 0;
+    stage.addEventListener('touchstart', (ev) => {
+      const t = ev.touches[0];
+      if (t) [sx, sy] = [t.clientX, t.clientY];
+    }, { passive: true });
+    stage.addEventListener('touchend', (ev) => {
+      const t = ev.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - sx;
+      const dy = t.clientY - sy;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const rtl = document.documentElement.dir === 'rtl';
+      step((dx < 0) !== rtl ? 1 : -1);
+    }, { passive: true });
+
     // Open straight from a shared link: /library#athka-2024
     const fromHash = decodeURIComponent(location.hash.slice(1));
     if (fromHash && library.some((e) => e.slug === fromHash)) open(fromHash);
@@ -774,12 +793,23 @@ const viewLabel = (n: number): string => (n === 1 ? L.viewOne : L.viewMany.repla
 
     .viewer__stage img {
       display: block;
-      max-height: 58dvh;
+      max-height: 52dvh;
     }
 
     .viewer__side {
       overflow: visible;
       margin-top: var(--space-5);
+    }
+
+    /* Previous / Next stay pinned to the bottom of the screen while the column scrolls, so
+       they are always one tap away. */
+    .viewer__nav {
+      position: sticky;
+      bottom: 0;
+      z-index: 1;
+      margin-top: var(--space-3);
+      padding-block: var(--space-3) max(var(--space-3), env(safe-area-inset-bottom));
+      background: var(--bg);
     }
 
     /* The close button stays put while the column scrolls. */
