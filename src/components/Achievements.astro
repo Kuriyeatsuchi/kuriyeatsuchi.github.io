@@ -114,11 +114,12 @@ function toDatetime(date: string): string | undefined {
     font-size: var(--step--1);
   }
 
+  /* Name, then its dates on their own line, for every item (short names used to put the
+     date on the right instead). */
   .training__list li {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0 var(--space-5);
+    flex-direction: column;
+    gap: var(--space-1);
     padding-block: var(--space-3);
     border-top: 1px solid var(--border);
   }
